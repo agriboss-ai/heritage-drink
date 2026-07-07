@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Heritage Drink — Espace Admin</title>
 <meta name="robots" content="noindex, nofollow"/>
+<link rel="icon" type="image/png" href="logo-heritage-ovale.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
@@ -196,7 +197,7 @@ a{color:inherit}
 <!-- ═══════════ LOGIN SCREEN ═══════════ -->
 <div class="login-screen" id="loginScreen">
   <div class="login-box">
-    <div class="login-logo">Heritage<span>.</span><small>ESPACE ADMIN</small></div>
+    <div class="login-logo"><img src="logo-heritage.png" alt="Heritage Drink" style="height:44px;width:auto;object-fit:contain;filter:brightness(0) invert(1);margin:0 auto"/><small>ESPACE ADMIN</small></div>
     <p class="login-sub">Gestion des produits, promotions, témoignages et statistiques du site.</p>
     <div class="form-field">
       <label>Mot de passe</label>
@@ -211,13 +212,14 @@ a{color:inherit}
 <!-- ═══════════ ADMIN APP ═══════════ -->
 <div class="admin-app" id="adminApp" style="display:none">
   <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo">Heritage<span>.</span></div>
+    <div class="sidebar-logo"><img src="logo-heritage.png" alt="Heritage Drink" style="height:34px;width:auto;object-fit:contain;filter:brightness(0) invert(1)"/></div>
     <nav class="sidebar-nav" id="sidebarNav">
       <button class="nav-item active" data-view="dashboard"><span class="ic">📊</span> Tableau de bord</button>
       <button class="nav-item" data-view="products"><span class="ic">🥤</span> Produits</button>
       <button class="nav-item" data-view="promo"><span class="ic">🎉</span> Bannière promo</button>
       <button class="nav-item" data-view="testimonials"><span class="ic">💬</span> Témoignages</button>
       <button class="nav-item" data-view="faq"><span class="ic">❓</span> FAQ</button>
+      <button class="nav-item" data-view="gallery"><span class="ic">🖼️</span> Galerie communauté</button>
       <button class="nav-item" data-view="settings"><span class="ic">⚙️</span> Paramètres</button>
       <button class="nav-item" data-view="stats"><span class="ic">📈</span> Statistiques</button>
     </nav>
@@ -317,6 +319,16 @@ a{color:inherit}
         <div id="faqList"></div>
       </section>
 
+      <!-- ══ GALERIE COMMUNAUTE ══ -->
+      <section class="view" data-view="gallery" id="view-gallery">
+        <div class="section-head">
+          <h2>Galerie communauté</h2>
+          <button class="btn btn-gold btn-sm" id="addGalleryBtn">+ Ajouter une photo</button>
+        </div>
+        <p class="section-note">Ajoutez une URL d'image ou le nom d'un fichier présent dans le dossier du site. Maximum 12 photos affichées sur le site public. Une fois au moins une photo ajoutée, elle remplace les emplacements vides de la section "Heritage en images".</p>
+        <div id="galleryList"></div>
+      </section>
+
       <!-- ══ PARAMETRES ══ -->
       <section class="view" data-view="settings" id="view-settings">
         <div class="section-head"><h2>Paramètres généraux</h2></div>
@@ -352,6 +364,27 @@ a{color:inherit}
             <button class="btn btn-gold" id="saveSettingsBtn">💾 Enregistrer les paramètres</button>
             <button class="btn btn-outline" id="testWaBtn">💬 Tester le lien WhatsApp</button>
           </div>
+        </div>
+
+        <div class="card">
+          <div class="section-head"><h2>Sécurité</h2></div>
+          <p class="section-note">Changez le mot de passe de connexion à cet espace admin. La session en cours n'est pas affectée ; le nouveau mot de passe sera demandé à la prochaine connexion.</p>
+          <div class="form-grid">
+            <div class="form-field full">
+              <label>Mot de passe actuel</label>
+              <input type="password" id="pwCurrent" autocomplete="current-password"/>
+            </div>
+            <div class="form-field">
+              <label>Nouveau mot de passe</label>
+              <input type="password" id="pwNew" autocomplete="new-password"/>
+            </div>
+            <div class="form-field">
+              <label>Confirmer</label>
+              <input type="password" id="pwConfirm" autocomplete="new-password"/>
+            </div>
+          </div>
+          <button class="btn btn-gold" id="changePasswordBtn">🔒 Changer le mot de passe</button>
+          <div class="login-error" id="pwChangeMsg" style="margin-top:12px;color:var(--tm)"></div>
         </div>
       </section>
 
@@ -538,6 +571,10 @@ function renderLock(lockUntil) {
   lockInterval = setInterval(tick, 1000);
 }
 
+function getActivePasswordHash() {
+  return localStorage.getItem('hd_admin_password_hash') || ADMIN_PASSWORD_HASH;
+}
+
 async function attemptLogin() {
   const state = getLoginState();
   const now = Date.now();
@@ -547,7 +584,7 @@ async function attemptLogin() {
   const pwInput = document.getElementById('loginPassword');
   const hash = await sha256Hex(pwInput.value);
 
-  if (hash === ADMIN_PASSWORD_HASH) {
+  if (hash === getActivePasswordHash()) {
     setLoginState({ attempts: 0, lockUntil: 0 });
     sessionStorage.setItem('hd_admin_session', '1');
     errEl.textContent = '';
@@ -622,6 +659,7 @@ function renderAll() {
   renderPromoModule();
   renderTestiList();
   renderFaqList_();
+  renderGalleryList();
   renderSettingsModule();
   renderStats();
 }
@@ -1017,6 +1055,84 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* =====================================================
+   MODULE — GALERIE COMMUNAUTE
+===================================================== */
+function getGallery() { const g = hdGet('hd_gallery', null); return Array.isArray(g) ? g : []; }
+
+function renderGalleryList() {
+  const list = getGallery();
+  const el = document.getElementById('galleryList');
+  if (!list.length) { el.innerHTML = '<div class="empty-state">Aucune photo. Ajoutez-en une ci-dessus — elle remplacera les placeholders du site.</div>'; return; }
+  el.innerHTML = list.map((p, i) => `
+    <div class="item-row">
+      <div class="item-head">
+        <div class="item-thumb"><img src="${escapeHtml(p.url)}" alt="" onerror="this.style.opacity=0.15"/></div>
+        <div class="item-main">
+          <div class="item-title">${escapeHtml(p.caption || p.url)}</div>
+          <div class="item-sub">${escapeHtml(p.url)}</div>
+        </div>
+        ${i >= 12 ? '<span class="item-badge-inactive">Non affiché</span>' : ''}
+        <div class="item-actions">
+          <button class="icon-btn" onclick="moveGalleryPhoto(${i},-1)" ${i===0?'disabled':''} title="Monter">↑</button>
+          <button class="icon-btn" onclick="moveGalleryPhoto(${i},1)" ${i===list.length-1?'disabled':''} title="Descendre">↓</button>
+          <button class="icon-btn" onclick="toggleGalleryEdit(${i})" title="Modifier">✎</button>
+          <button class="icon-btn" onclick="deleteGalleryPhoto(${i})" title="Supprimer">🗑</button>
+        </div>
+      </div>
+      <div class="item-edit" id="galEdit${i}">
+        <div class="form-field"><label>URL ou nom de fichier</label><input type="text" id="galUrl${i}" value="${escapeHtml(p.url)}" placeholder="Ex : community-1.jpg ou https://..."/></div>
+        <div class="form-field"><label>Légende (optionnelle)</label><input type="text" id="galCaption${i}" value="${escapeHtml(p.caption || '')}" placeholder="Ex : Nos clients à Lomé"/></div>
+        <button class="btn btn-gold" onclick="saveGalleryPhoto(${i})">💾 Enregistrer</button>
+      </div>
+    </div>
+  `).join('');
+}
+function toggleGalleryEdit(i) {
+  const panel = document.getElementById('galEdit'+i);
+  const isOpen = panel.classList.contains('open');
+  document.querySelectorAll('.item-edit.open').forEach(p => p.classList.remove('open'));
+  if (!isOpen) panel.classList.add('open');
+}
+function moveGalleryPhoto(i, dir) {
+  const list = getGallery();
+  const j = i + dir;
+  if (j < 0 || j >= list.length) return;
+  [list[i], list[j]] = [list[j], list[i]];
+  hdSet('hd_gallery', list);
+  touchLastModified();
+  renderGalleryList();
+}
+function saveGalleryPhoto(i) {
+  const list = getGallery();
+  const url = document.getElementById('galUrl'+i).value.trim();
+  if (!url) { showToast("L'URL ou le nom de fichier est requis."); return; }
+  list[i] = { url, caption: document.getElementById('galCaption'+i).value.trim() };
+  hdSet('hd_gallery', list);
+  touchLastModified();
+  renderGalleryList();
+  showToast('Photo enregistrée ✓');
+}
+function deleteGalleryPhoto(i) {
+  if (!confirm('Supprimer cette photo ?')) return;
+  const list = getGallery();
+  list.splice(i, 1);
+  hdSet('hd_gallery', list);
+  touchLastModified();
+  renderGalleryList();
+}
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('addGalleryBtn').addEventListener('click', () => {
+    const list = getGallery();
+    if (list.length >= 12) { showToast('Maximum 12 photos.'); return; }
+    list.push({ url: '', caption: '' });
+    hdSet('hd_gallery', list);
+    touchLastModified();
+    renderGalleryList();
+    toggleGalleryEdit(list.length - 1);
+  });
+});
+
+/* =====================================================
    MODULE 6 — PARAMETRES GENERAUX
 ===================================================== */
 function renderSettingsModule() {
@@ -1046,6 +1162,39 @@ function renderSettingsModule() {
     const num = document.getElementById('setWhatsapp').value.replace(/\D/g,'');
     if (!num) { showToast("Saisissez un numéro d'abord."); return; }
     window.open('https://wa.me/' + num, '_blank');
+  };
+
+  document.getElementById('changePasswordBtn').onclick = async () => {
+    const msgEl = document.getElementById('pwChangeMsg');
+    const current = document.getElementById('pwCurrent').value;
+    const next = document.getElementById('pwNew').value;
+    const confirmPw = document.getElementById('pwConfirm').value;
+
+    const currentHash = await sha256Hex(current);
+    if (currentHash !== getActivePasswordHash()) {
+      msgEl.style.color = '#C0392B';
+      msgEl.textContent = 'Mot de passe actuel incorrect.';
+      return;
+    }
+    if (!next || next.length < 6) {
+      msgEl.style.color = '#C0392B';
+      msgEl.textContent = 'Le nouveau mot de passe doit contenir au moins 6 caractères.';
+      return;
+    }
+    if (next !== confirmPw) {
+      msgEl.style.color = '#C0392B';
+      msgEl.textContent = 'La confirmation ne correspond pas au nouveau mot de passe.';
+      return;
+    }
+    const newHash = await sha256Hex(next);
+    localStorage.setItem('hd_admin_password_hash', newHash);
+    touchLastModified();
+    document.getElementById('pwCurrent').value = '';
+    document.getElementById('pwNew').value = '';
+    document.getElementById('pwConfirm').value = '';
+    msgEl.style.color = 'var(--gf)';
+    msgEl.textContent = 'Mot de passe changé ✓ — il sera demandé à la prochaine connexion.';
+    showToast('Mot de passe mis à jour ✓');
   };
 }
 

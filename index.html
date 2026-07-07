@@ -8,7 +8,8 @@
   <meta property="og:title" content="Heritage Drink — Jus Naturels, Lomé Togo"/>
   <meta property="og:description" content="Fruits du terroir togolais pressés chaque matin. Zéro sucre, 100% local."/>
   <meta property="og:type" content="website"/>
-  <meta name="theme-color" content="#0D3B1F"/>
+  <meta name="theme-color" content="#2D5A3D"/>
+  <link rel="icon" type="image/png" href="logo-heritage-ovale.png"/>
   <link rel="manifest" href="manifest.json"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -63,12 +64,17 @@
     .btn-ghost:hover{border-color:var(--green)}
     .hero-stats{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:48px;padding-top:28px;border-top:1px solid var(--border);font-size:13px;color:var(--muted);font-weight:500}
     .hero-stats .stat-sep{color:var(--border)}
+    @media(max-width:600px){
+      .hero-stats{flex-wrap:nowrap;white-space:nowrap;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;padding-bottom:4px}
+      .hero-stats::-webkit-scrollbar{display:none}
+      .hero-stats .stat-num,.hero-stats .stat-sep{white-space:nowrap;flex-shrink:0}
+    }
     .stat-num{font-weight:500;color:var(--muted);display:inline-flex;gap:2px}
     .stat-num span{color:var(--muted)}
     .stat-label{display:none}
     .hero-visual{display:flex;align-items:center;justify-content:center}
     .hero-circle{width:min(420px,90%);aspect-ratio:1;border-radius:50%;background:#F0EBE0;display:flex;align-items:center;justify-content:center;position:relative}
-    .hero-circle img{width:72%;height:72%;object-fit:contain}
+    .hero-circle img{width:90%;height:90%;object-fit:contain}
     .hero-badge-float{position:absolute;bottom:8%;left:6%;background:var(--gold);color:var(--white);font-size:.66rem;font-weight:700;letter-spacing:.05em;padding:6px 13px;border-radius:999px;text-transform:uppercase}
 
     /* ── MARQUEE ── */
@@ -149,6 +155,8 @@
     .community-slot .emoji{font-size:1.8rem}
     .community-slot small{font-size:11px}
     .community-slot:nth-child(odd){background:#E8E4DC}
+    .community-slot.has-photo{padding:0;background:none}
+    .community-slot.has-photo img{width:100%;height:100%;object-fit:cover}
     .community-cta{text-align:center}
     .btn-outline-dark{display:inline-flex;align-items:center;gap:10px;border:1.5px solid var(--border);color:var(--text);padding:14px 28px;border-radius:8px;font-weight:600;font-size:14px;transition:border-color .2s,background .2s}
     .btn-outline-dark:hover{border-color:var(--green);background:var(--cream)}
@@ -390,7 +398,9 @@
 
     /* ── RESPONSIVE ── */
     @media(max-width:960px){
-      .hero{grid-template-columns:1fr;padding-top:120px;min-height:auto}
+      nav{padding:10px 5vw}
+      .nav-logo img{height:36px!important}
+      .hero{grid-template-columns:1fr;padding-top:100px;min-height:auto}
       .hero-visual{order:-1;margin-bottom:20px}
       .hero-circle{width:280px}
       .products-grid{grid-template-columns:repeat(2,1fr)}
@@ -418,7 +428,7 @@
 
 <!-- NAV -->
 <nav id="mainNav">
-  <a href="#" class="nav-logo">Heritage<span>.</span></a>
+  <a href="#" class="nav-logo"><img src="logo-heritage.png" alt="Heritage Drink" style="height:44px;width:auto;object-fit:contain;display:block"/></a>
   <ul class="nav-links" id="navLinks">
     <li><a href="#products">Nos Jus</a></li>
     <li><a href="#quiz">Quiz Santé</a></li>
@@ -435,7 +445,7 @@
 <section class="hero">
   <div>
     <p class="hero-label">Lomé, Togo · Depuis 2018</p>
-    <h1>La santé du Togo,<br/>pressée pour vous.</h1>
+    <h1>Votre santé, fraîchement embouteillée.</h1>
     <p class="hero-desc">Fruits et légumes locaux, transformés chaque matin en jus vivants. Zéro sucre ajouté, zéro chimie. Cures santé, abonnements, programme de fidélité.</p>
     <div class="hero-actions">
       <a href="https://wa.me/22879467455?text=Bonjour%20Heritage%20Drink%2C%20je%20souhaite%20commander%20un%20jus%20naturel.%20Merci%20de%20me%20donner%20les%20options%20du%20jour%20!" class="btn-primary">Commander sur WhatsApp →</a>
@@ -447,7 +457,7 @@
   </div>
   <div class="hero-visual">
     <div class="hero-circle">
-      <img src="Super_Dotè_Heritage.png" alt="Super Dotè Heritage"/>
+      <img src="Super_Dotè_Heritage.png" alt="Super Dotè Heritage" style="mix-blend-mode:multiply;background:transparent"/>
       <span class="hero-badge-float">⭐ Le plus populaire</span>
     </div>
   </div>
@@ -486,7 +496,7 @@
 <section class="products" id="products">
   <div class="sec-header">
     <div>
-      <p class="eyebrow">Ce que nous pressons</p>
+      <p class="eyebrow" style="font-size:13px;font-weight:600;color:var(--text)">Ce que nous pressons</p>
       <h2 class="sec-title" style="margin-bottom:0">Nos recettes.</h2>
     </div>
     <a href="https://wa.me/22879467455?text=Bonjour%20Heritage%20Drink%2C%20quelles%20sont%20vos%20recettes%20du%20jour%20?" class="btn-ghost">Toutes les options →</a>
@@ -501,7 +511,7 @@
     <h2 class="sec-title">Heritage en images.</h2>
     <p class="sec-body">Des vraies personnes, de vraies bouteilles, de vrais moments. Chaque jour à Lomé, Heritage Drink accompagne vos matins, vos événements et vos moments de santé.</p>
   </div>
-  <div class="community-gallery">
+  <div class="community-gallery" id="communityGallery">
     <div class="community-slot big"><span class="emoji">📸</span><span>Photo communauté 1</span><small>(remplacer par vraie photo)</small></div>
     <div class="community-slot"><span class="emoji">📸</span><small>Photo 2</small></div>
     <div class="community-slot"><span class="emoji">📸</span><small>Photo 3</small></div>
@@ -900,7 +910,7 @@
 <footer>
   <div class="footer-grid">
     <div>
-      <div class="footer-brand">Heritage<span>.</span></div>
+      <div class="footer-brand"><img src="logo-heritage.png" alt="Heritage Drink" style="height:38px;width:auto;object-fit:contain;display:block;filter:brightness(0) invert(1)"/></div>
       <p class="footer-desc">Jus naturels pressés à Lomé. Fruits du terroir togolais, sans sucre ni additifs. Cures santé, abonnements et programme de fidélité.</p>
       <div class="footer-social">
         <a href="https://www.instagram.com/heritagedrink" id="socialInstagram" class="social-btn" target="_blank" rel="noopener">📸</a>
@@ -934,8 +944,11 @@
       <div class="footer-contact-item"><span>📍</span><span id="footerAddress">Rue de la Pâture, Lomé, Togo<br/>Lun–Sam : 8h–18h</span></div>
     </div>
   </div>
+  <div style="text-align:center;margin-bottom:12px">
+    <span style="font-size:11px;color:rgba(255,255,255,0.2);cursor:pointer" onclick="window.location='/admin'">Espace professionnel</span>
+  </div>
   <div class="footer-bottom">
-    <p class="footer-bottom-text">© 2026 Heritage Drink — Bar à Jus, Lomé, Togo. Tous droits réservés.</p>
+    <p class="footer-bottom-text">© 2026 Heritage Drink — Bar à Jus, Lomé, Togo. Tous droits réservés. <a href="/admin" style="color:transparent;font-size:1px;user-select:none" aria-hidden="true">·</a></p>
     <div class="footer-badge">🌿 100% Togo Made</div>
   </div>
 </footer>
@@ -1038,6 +1051,7 @@ function getPromo() { return hdGet('hd_promo', HD_DEFAULTS.promo); }
 function getProducts() { const p = hdGet('hd_products', null); return (Array.isArray(p) && p.length) ? p : HD_DEFAULTS.products; }
 function getTestimonials() { const t = hdGet('hd_testimonials', null); return (Array.isArray(t) && t.length) ? t : HD_DEFAULTS.testimonials; }
 function getFaqList() { const f = hdGet('hd_faq', null); return (Array.isArray(f) && f.length) ? f : HD_DEFAULTS.faq; }
+function getGallery() { const g = hdGet('hd_gallery', null); return Array.isArray(g) ? g.filter(p => p && p.url) : []; }
 
 function escapeHtml(str) {
   return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1155,6 +1169,18 @@ function renderFaqList() {
   grid.innerHTML = list.map(item => `<div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">${escapeHtml(item.q)}<div class="faq-icon">+</div></button><div class="faq-a">${escapeHtml(item.a)}</div></div>`).join('');
 }
 
+function renderGallery() {
+  const photos = getGallery().slice(0, 12);
+  if (!photos.length) return; // conserve les placeholders existants
+  const grid = document.getElementById('communityGallery');
+  if (!grid) return;
+  grid.innerHTML = photos.map((p, i) => {
+    const bigClass = i === 0 ? ' big' : '';
+    const caption = p.caption || 'Photo communauté Heritage Drink';
+    return `<div class="community-slot has-photo${bigClass}"><img src="${escapeHtml(p.url)}" alt="${escapeHtml(caption)}"/></div>`;
+  }).join('');
+}
+
 function renderPromo() {
   const promo = getPromo();
   let el = document.getElementById('promoBanner');
@@ -1202,6 +1228,7 @@ renderPromo();
 renderProducts();
 renderTestimonials();
 renderFaqList();
+renderGallery();
 
 /* =====================================================
    NAV + SCROLL REVEAL

@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Heritage Drink — Espace Admin</title>
+<meta name="robots" content="noindex, nofollow"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --gd:#0D3B1F;--gm:#1A6B38;--gf:#2EAD5C;--gold:#D4A833;
+  --cream:#FAF6EE;--td:#0D1A12;--tm:#5A6B5E;--w:#FFFFFF;
+  --danger:#C0392B;--warn:#D4A833;
+  --fd:'Playfair Display',Georgia,serif;
+  --fb:'DM Sans',system-ui,sans-serif;
+  --fm:'Space Mono',monospace;
+  --rs:6px;--rm:12px;--rl:20px;--rp:999px;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--fb);background:#F1EEE4;color:var(--td);min-height:100vh}
+img{max-width:100%;display:block}
+button{font-family:var(--fb);cursor:pointer}
+input,select,textarea{font-family:var(--fb)}
+a{color:inherit}
+::selection{background:rgba(46,173,92,.25)}
+
+/* ── LOGIN SCREEN ── */
+.login-screen{position:fixed;inset:0;background:linear-gradient(135deg,var(--gd) 0%,#071f0f 100%);display:flex;align-items:center;justify-content:center;padding:20px;z-index:1000}
+.login-box{background:rgba(250,246,238,.05);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(250,246,238,.12);border-radius:var(--rl);padding:48px 40px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.login-logo{font-family:var(--fd);font-size:1.7rem;font-weight:900;color:var(--cream);text-align:center}
+.login-logo span{color:var(--gold)}
+.login-logo small{display:block;font-family:var(--fm);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(250,246,238,.4);margin-top:6px;font-weight:400}
+.login-sub{text-align:center;font-size:.83rem;color:rgba(250,246,238,.55);margin:14px 0 30px;line-height:1.6}
+.login-box .form-field{margin-bottom:18px}
+.login-box label{display:block;font-size:.7rem;font-weight:600;color:rgba(250,246,238,.5);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.login-box input{width:100%;background:rgba(250,246,238,.07);border:1px solid rgba(250,246,238,.16);border-radius:var(--rs);padding:13px 16px;color:var(--cream);font-size:.95rem;outline:none;transition:border-color .2s,box-shadow .2s}
+.login-box input:focus{border-color:var(--gf);box-shadow:0 0 0 3px rgba(46,173,92,.22)}
+.btn-login{width:100%;padding:14px;background:var(--gold);color:var(--gd);font-weight:700;font-size:.95rem;border:none;border-radius:var(--rp);transition:transform .2s,box-shadow .2s}
+.btn-login:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(212,168,51,.35)}
+.btn-login:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.login-error{margin-top:16px;text-align:center;font-size:.82rem;color:#ff8a80;min-height:20px}
+.login-lock{margin-top:16px;text-align:center;font-size:.85rem;color:var(--gold);background:rgba(212,168,51,.1);border:1px solid rgba(212,168,51,.25);border-radius:var(--rs);padding:14px;line-height:1.6}
+
+/* ── ADMIN SHELL ── */
+.admin-app{display:flex;min-height:100vh}
+.sidebar{width:240px;flex-shrink:0;background:var(--gd);color:var(--cream);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .3s var(--ease)}
+.sidebar-logo{font-family:var(--fd);font-size:1.3rem;font-weight:900;padding:26px 22px 20px;border-bottom:1px solid rgba(250,246,238,.08)}
+.sidebar-logo span{color:var(--gold)}
+.sidebar-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:3px;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:11px;text-align:left;background:none;border:none;color:rgba(250,246,238,.62);font-size:.87rem;font-weight:500;padding:12px 14px;border-radius:var(--rs);transition:background .18s,color .18s}
+.nav-item:hover{background:rgba(250,246,238,.06);color:var(--cream)}
+.nav-item.active{background:rgba(46,173,92,.22);color:var(--cream);font-weight:700}
+.nav-item .ic{font-size:1.05rem;width:22px;text-align:center;flex-shrink:0}
+.sidebar-foot{padding:16px;border-top:1px solid rgba(250,246,238,.08)}
+.btn-view-site{width:100%;background:rgba(250,246,238,.08);border:1px solid rgba(250,246,238,.14);color:var(--cream);font-size:.8rem;font-weight:600;padding:11px;border-radius:var(--rp);transition:background .2s}
+.btn-view-site:hover{background:rgba(250,246,238,.14)}
+
+.main-area{flex:1;margin-left:240px;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--w);border-bottom:1px solid rgba(13,59,31,.08);padding:16px 26px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50}
+.hamburger-admin{display:none;background:none;border:none;font-size:1.3rem;color:var(--gd);padding:4px}
+.topbar-title{font-family:var(--fd);font-size:1.25rem;font-weight:900;color:var(--gd);flex:1}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.admin-name{font-size:.82rem;color:var(--tm);font-weight:500}
+.btn-logout{background:rgba(192,57,43,.09);color:var(--danger);border:1px solid rgba(192,57,43,.22);font-size:.8rem;font-weight:600;padding:9px 16px;border-radius:var(--rp);transition:background .2s}
+.btn-logout:hover{background:rgba(192,57,43,.16)}
+
+.content{flex:1;padding:30px 30px 60px;max-width:1180px;width:100%}
+.view{display:none}
+.view.active{display:block}
+
+/* ── COMMON UI ── */
+.card{background:var(--w);border:1px solid rgba(13,59,31,.08);border-radius:var(--rl);padding:24px}
+.card+.card{margin-top:18px}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+.section-head h2{font-family:var(--fd);font-size:1.35rem;font-weight:900;color:var(--gd)}
+.section-note{font-size:.8rem;color:var(--tm);margin-bottom:18px;line-height:1.6}
+.btn{display:inline-flex;align-items:center;gap:7px;font-size:.83rem;font-weight:700;padding:11px 18px;border-radius:var(--rp);border:none;transition:transform .15s,box-shadow .15s,background .15s}
+.btn-gold{background:var(--gold);color:var(--gd)}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(212,168,51,.3)}
+.btn-outline{background:none;border:1.5px solid rgba(13,59,31,.18);color:var(--gd)}
+.btn-outline:hover{border-color:var(--gd);background:rgba(13,59,31,.03)}
+.btn-danger{background:rgba(192,57,43,.09);color:var(--danger);border:1px solid rgba(192,57,43,.22)}
+.btn-danger:hover{background:rgba(192,57,43,.16)}
+.btn-sm{padding:7px 13px;font-size:.74rem}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-field{margin-bottom:16px}
+.form-field.full{grid-column:1/-1}
+.form-field label{display:block;font-size:.72rem;font-weight:700;color:var(--tm);letter-spacing:.04em;text-transform:uppercase;margin-bottom:7px}
+.form-field .hint{font-size:.72rem;color:var(--tm);opacity:.75;margin-top:5px;line-height:1.5}
+.form-field input,.form-field select,.form-field textarea{width:100%;background:#FBF9F4;border:1.5px solid rgba(13,59,31,.12);border-radius:var(--rs);padding:11px 13px;color:var(--td);font-size:.87rem;outline:none;transition:border-color .2s,box-shadow .2s}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--gf);box-shadow:0 0 0 3px rgba(46,173,92,.14)}
+.form-field textarea{resize:vertical;min-height:70px;line-height:1.5}
+
+/* switch */
+.switch{position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0}
+.switch input{opacity:0;width:0;height:0}
+.switch-track{position:absolute;inset:0;background:rgba(13,59,31,.18);border-radius:var(--rp);transition:background .2s;cursor:pointer}
+.switch-track::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:var(--w);border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.switch input:checked+.switch-track{background:var(--gf)}
+.switch input:checked+.switch-track::before{transform:translateX(20px)}
+
+/* ── DASHBOARD ── */
+.stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px}
+.stat-card{background:var(--w);border:1px solid rgba(13,59,31,.08);border-radius:var(--rm);padding:20px}
+.stat-card .n{font-family:var(--fd);font-size:1.9rem;font-weight:900;color:var(--gd);line-height:1}
+.stat-card .l{font-size:.74rem;color:var(--tm);margin-top:6px;font-weight:600}
+.bars{display:flex;flex-direction:column;gap:14px}
+.bar-row{display:grid;grid-template-columns:150px 1fr 50px;align-items:center;gap:12px}
+.bar-row .lbl{font-size:.8rem;color:var(--td);font-weight:600}
+.bar-track{background:rgba(13,59,31,.06);border-radius:var(--rp);height:12px;overflow:hidden}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--gf),var(--gold));border-radius:var(--rp);transition:width .5s var(--ease)}
+.bar-row .val{font-family:var(--fm);font-size:.78rem;color:var(--gm);text-align:right}
+.alert-list{display:flex;flex-direction:column;gap:10px}
+.alert{display:flex;align-items:flex-start;gap:10px;padding:13px 15px;border-radius:var(--rs);font-size:.83rem;line-height:1.5}
+.alert-warn{background:rgba(212,168,51,.1);color:#8a6d1f;border:1px solid rgba(212,168,51,.25)}
+.alert-info{background:rgba(46,173,92,.08);color:var(--gm);border:1px solid rgba(46,173,92,.2)}
+.alert-neutral{background:rgba(13,59,31,.04);color:var(--tm);border:1px solid rgba(13,59,31,.08)}
+
+/* ── LISTES (produits / temoignages / faq) ── */
+.item-row{border:1px solid rgba(13,59,31,.08);border-radius:var(--rm);margin-bottom:10px;overflow:hidden}
+.item-head{display:flex;align-items:center;gap:14px;padding:13px 16px;background:#FBF9F4}
+.item-thumb{width:48px;height:48px;border-radius:var(--rs);overflow:hidden;flex-shrink:0;background:var(--gd)}
+.item-thumb img{width:100%;height:100%;object-fit:cover}
+.item-main{flex:1;min-width:0}
+.item-title{font-weight:700;font-size:.88rem;color:var(--gd);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-sub{font-size:.74rem;color:var(--tm);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.icon-btn{background:none;border:1px solid rgba(13,59,31,.14);color:var(--gd);width:30px;height:30px;border-radius:var(--rs);font-size:.85rem;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.icon-btn:hover{background:rgba(13,59,31,.06)}
+.icon-btn:disabled{opacity:.3;cursor:not-allowed}
+.item-badge-inactive{background:rgba(192,57,43,.1);color:var(--danger);font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:var(--rp);text-transform:uppercase;letter-spacing:.04em;flex-shrink:0}
+.item-edit{display:none;padding:18px 16px;border-top:1px solid rgba(13,59,31,.08)}
+.item-edit.open{display:block}
+.edit-cols{display:grid;grid-template-columns:1fr 260px;gap:22px}
+@media(max-width:800px){.edit-cols{grid-template-columns:1fr}}
+
+/* mini preview carte produit (reprend le style du site) */
+.preview-wrap{background:var(--gd);border-radius:var(--rl);padding:16px}
+.preview-label{font-family:var(--fm);font-size:.6rem;color:rgba(250,246,238,.4);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}
+.pp-card{background:rgba(250,246,238,.05);border:1px solid rgba(250,246,238,.1);border-radius:var(--rm);overflow:hidden}
+.pp-thumb{aspect-ratio:4/3;position:relative;overflow:hidden;background:#0a2b16}
+.pp-thumb img{width:100%;height:100%;object-fit:cover}
+.pp-badge{position:absolute;top:9px;right:9px;background:var(--gold);color:var(--gd);font-family:var(--fm);font-size:.55rem;font-weight:700;padding:3px 8px;border-radius:var(--rp);text-transform:uppercase}
+.pp-body{padding:14px}
+.pp-name{font-family:var(--fd);font-size:.95rem;font-weight:700;color:var(--cream);margin-bottom:5px}
+.pp-desc{font-size:.72rem;line-height:1.5;color:rgba(250,246,238,.55);margin-bottom:10px}
+.pp-benefits{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.pp-chip{background:rgba(46,173,92,.15);color:var(--gf);font-size:.6rem;font-weight:600;padding:2px 8px;border-radius:var(--rp)}
+.pp-footer{display:flex;align-items:center;justify-content:space-between}
+.pp-price{font-family:var(--fd);font-size:1.05rem;font-weight:900;color:var(--gold)}
+.pp-price small{font-size:.58rem;color:rgba(250,246,238,.4);font-weight:400}
+.pp-order{background:var(--gf);color:var(--w);font-size:.65rem;font-weight:700;padding:6px 12px;border-radius:var(--rp)}
+
+/* promo preview */
+.promo-preview{border-radius:var(--rs);padding:13px 16px;text-align:center;font-size:.85rem;font-weight:700}
+.color-swatches{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.swatch{width:38px;height:38px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .15s,border-color .15s;flex-shrink:0}
+.swatch:hover{transform:scale(1.08)}
+.swatch.active{border-color:var(--gd);box-shadow:0 0 0 2px var(--w),0 0 0 4px var(--gd)}
+
+.stars-input{display:flex;gap:4px}
+.star-pick{font-size:1.3rem;color:rgba(13,59,31,.2);background:none;border:none;transition:color .15s}
+.star-pick.on{color:var(--gold)}
+
+/* stats log */
+.log-list{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow-y:auto}
+.log-item{display:flex;align-items:center;gap:12px;padding:11px 14px;background:#FBF9F4;border-radius:var(--rs);font-size:.82rem}
+.log-item .tag{font-family:var(--fm);font-size:.68rem;background:rgba(46,173,92,.13);color:var(--gm);padding:3px 9px;border-radius:var(--rp);flex-shrink:0}
+.log-item .time{margin-left:auto;color:var(--tm);font-size:.74rem;flex-shrink:0}
+.empty-state{text-align:center;padding:40px 20px;color:var(--tm);font-size:.85rem}
+
+/* toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--gd);color:var(--cream);padding:14px 20px;border-radius:var(--rs);font-size:.85rem;font-weight:600;box-shadow:0 8px 26px rgba(0,0,0,.25);z-index:800;opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main-area{margin-left:0}
+  .hamburger-admin{display:block}
+  .admin-name{display:none}
+  .form-grid{grid-template-columns:1fr}
+  .content{padding:20px 16px 50px}
+  .bar-row{grid-template-columns:100px 1fr 40px;gap:8px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ LOGIN SCREEN ═══════════ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">Heritage<span>.</span><small>ESPACE ADMIN</small></div>
+    <p class="login-sub">Gestion des produits, promotions, témoignages et statistiques du site.</p>
+    <div class="form-field">
+      <label>Mot de passe</label>
+      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+    <button class="btn-login" id="loginBtn">Se connecter →</button>
+    <div class="login-error" id="loginError"></div>
+    <div class="login-lock" id="loginLock" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ═══════════ ADMIN APP ═══════════ -->
+<div class="admin-app" id="adminApp" style="display:none">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">Heritage<span>.</span></div>
+    <nav class="sidebar-nav" id="sidebarNav">
+      <button class="nav-item active" data-view="dashboard"><span class="ic">📊</span> Tableau de bord</button>
+      <button class="nav-item" data-view="products"><span class="ic">🥤</span> Produits</button>
+      <button class="nav-item" data-view="promo"><span class="ic">🎉</span> Bannière promo</button>
+      <button class="nav-item" data-view="testimonials"><span class="ic">💬</span> Témoignages</button>
+      <button class="nav-item" data-view="faq"><span class="ic">❓</span> FAQ</button>
+      <button class="nav-item" data-view="settings"><span class="ic">⚙️</span> Paramètres</button>
+      <button class="nav-item" data-view="stats"><span class="ic">📈</span> Statistiques</button>
+    </nav>
+    <div class="sidebar-foot">
+      <button class="btn-view-site" onclick="window.open('index.html','_blank')">🔗 Voir le site</button>
+    </div>
+  </aside>
+
+  <div class="main-area">
+    <header class="topbar">
+      <button class="hamburger-admin" id="hamburgerAdmin" aria-label="Menu">☰</button>
+      <div class="topbar-title" id="viewTitle">Tableau de bord</div>
+      <div class="topbar-right">
+        <span class="admin-name">👤 Administrateur Heritage</span>
+        <button class="btn-logout" id="logoutBtn">Déconnexion</button>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- ══ DASHBOARD ══ -->
+      <section class="view active" data-view="dashboard" id="view-dashboard">
+        <div class="stat-cards" id="dashStatCards"></div>
+        <div class="card">
+          <div class="section-head"><h2>Actions par module</h2></div>
+          <div class="bars" id="dashBars"></div>
+        </div>
+        <div class="card">
+          <div class="section-head"><h2>Alertes</h2></div>
+          <div class="alert-list" id="dashAlerts"></div>
+        </div>
+      </section>
+
+      <!-- ══ PRODUITS ══ -->
+      <section class="view" data-view="products" id="view-products">
+        <div class="section-head">
+          <h2>Gestion des produits</h2>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-outline btn-sm" id="resetProductsBtn">↩ Réinitialiser aux valeurs par défaut</button>
+          </div>
+        </div>
+        <p class="section-note">Les produits désactivés n'apparaissent plus sur le site public. Utilisez les flèches pour changer l'ordre d'affichage.</p>
+        <div id="productsList"></div>
+      </section>
+
+      <!-- ══ PROMO ══ -->
+      <section class="view" data-view="promo" id="view-promo">
+        <div class="section-head"><h2>Bannière promotionnelle</h2></div>
+        <div class="card">
+          <div class="form-field">
+            <label>Texte de la bannière</label>
+            <textarea id="promoText" placeholder="🎉 Vendredi Santé : -20% sur le Pack Santé jusqu'à 18h !"></textarea>
+          </div>
+          <div class="form-field">
+            <label>Couleur de fond</label>
+            <div class="color-swatches" id="promoSwatches"></div>
+            <input type="color" id="promoColorCustom" value="#D4A833" style="width:60px;height:36px;border:none;border-radius:var(--rs);cursor:pointer"/>
+          </div>
+          <div class="form-field">
+            <label>Aperçu</label>
+            <div class="promo-preview" id="promoPreview">🎉 Vendredi Santé : -20% sur le Pack Santé jusqu'à 18h !</div>
+          </div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label>Statut</label>
+              <div style="display:flex;align-items:center;gap:10px;padding-top:6px">
+                <label class="switch"><input type="checkbox" id="promoActive"/><span class="switch-track"></span></label>
+                <span style="font-size:.85rem;color:var(--tm)" id="promoActiveLabel">Bannière inactive</span>
+              </div>
+            </div>
+            <div class="form-field">
+              <label>Date d'expiration (optionnelle)</label>
+              <input type="date" id="promoExpiry"/>
+            </div>
+          </div>
+          <button class="btn btn-gold" id="savePromoBtn">💾 Enregistrer la bannière</button>
+        </div>
+      </section>
+
+      <!-- ══ TEMOIGNAGES ══ -->
+      <section class="view" data-view="testimonials" id="view-testimonials">
+        <div class="section-head">
+          <h2>Témoignages clients</h2>
+          <button class="btn btn-gold btn-sm" id="addTestiBtn">+ Ajouter un témoignage</button>
+        </div>
+        <p class="section-note">Seuls les 6 premiers de cette liste sont affichés sur le site public, dans cet ordre.</p>
+        <div id="testiList"></div>
+      </section>
+
+      <!-- ══ FAQ ══ -->
+      <section class="view" data-view="faq" id="view-faq">
+        <div class="section-head">
+          <h2>Questions fréquentes</h2>
+          <button class="btn btn-gold btn-sm" id="addFaqBtn">+ Ajouter une question</button>
+        </div>
+        <p class="section-note">Seules les 10 premières questions de cette liste sont affichées sur le site public.</p>
+        <div id="faqList"></div>
+      </section>
+
+      <!-- ══ PARAMETRES ══ -->
+      <section class="view" data-view="settings" id="view-settings">
+        <div class="section-head"><h2>Paramètres généraux</h2></div>
+        <div class="card">
+          <div class="form-grid">
+            <div class="form-field">
+              <label>Numéro WhatsApp</label>
+              <input type="text" id="setWhatsapp" placeholder="22879467455"/>
+              <div class="hint">Format international sans le symbole +. Ex : 22879467455</div>
+            </div>
+            <div class="form-field">
+              <label>Email de contact</label>
+              <input type="email" id="setEmail" placeholder="heritagedrink@gmail.com"/>
+            </div>
+            <div class="form-field full">
+              <label>Adresse complète</label>
+              <input type="text" id="setAddress" placeholder="Rue de la Pâture, Lomé, Togo"/>
+            </div>
+            <div class="form-field full">
+              <label>Horaires d'ouverture</label>
+              <input type="text" id="setHours" placeholder="Lundi–Samedi : 8h–18h"/>
+            </div>
+            <div class="form-field">
+              <label>Lien Instagram</label>
+              <input type="text" id="setInstagram" placeholder="https://www.instagram.com/heritagedrink"/>
+            </div>
+            <div class="form-field">
+              <label>Lien Facebook</label>
+              <input type="text" id="setFacebook" placeholder="https://www.facebook.com/..."/>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-gold" id="saveSettingsBtn">💾 Enregistrer les paramètres</button>
+            <button class="btn btn-outline" id="testWaBtn">💬 Tester le lien WhatsApp</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ STATISTIQUES ══ -->
+      <section class="view" data-view="stats" id="view-stats">
+        <div class="section-head">
+          <h2>Statistiques d'usage</h2>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-outline btn-sm" id="exportCsvBtn">⬇ Export CSV</button>
+            <button class="btn btn-danger btn-sm" id="resetStatsBtn">🗑 Réinitialiser</button>
+          </div>
+        </div>
+        <div class="stat-cards" id="statsCards"></div>
+        <div class="card">
+          <div class="section-head"><h2>Historique des 20 dernières actions</h2></div>
+          <div class="log-list" id="statsLog"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================
+   DONNÉES PAR DÉFAUT (identiques à index.html)
+===================================================== */
+const HD_DEFAULTS = {
+  whatsapp: '22879467455',
+  address: 'Rue de la Pâture, Lomé, Togo',
+  hours: 'Lundi–Samedi : 8h–18h',
+  email: 'heritagedrink@gmail.com',
+  instagram: 'https://www.instagram.com/heritagedrink',
+  facebook: 'https://www.facebook.com/share/1Bt51b16pG/',
+  promo: { active: false, text: '', color: '#D4A833' },
+  products: [
+    { id:'cocktail', name:'Cocktail Heritage', img:'Cocktail_Heritage.png',
+      price:1000, desc:'Assemblage quotidien de fruits frais africains pressés à froid.',
+      benefits:['Énergie matinale','Fruits locaux','Zéro sucre'], badge:'⭐ Signature', active:true },
+    { id:'smoothie', name:'Smoothie Heritage', img:'Smoothie_Heritqge.png',
+      price:1000, desc:'Mangue, pomme, ananas, banane. Un repas dans un verre.',
+      benefits:['Coupe-faim','Riche en fibres','Énergie durable'], badge:'', active:true },
+    { id:'superdote', name:'Super Dotè', img:'Super_Dotè_Heritage.png',
+      price:1000, desc:'Gingembre + curcuma. Le bouclier quotidien de nos clients.',
+      benefits:['Anti-inflammatoire','Immunité','Digestion'], badge:'🔥 Populaire', active:true },
+    { id:'corossol', name:'Corossol Heritage', img:'Corossol_Heritqge.png',
+      price:1500, desc:'Fruit rare du terroir togolais. Goût unique, défenses renforcées.',
+      benefits:['Immunité','Fibres','Fruit rare'], badge:'💎 Rare', active:true },
+    { id:'pasteque', name:'Pastèque Pure', img:'Pastèque_Pure.png',
+      price:1000, desc:'100% pastèque. Naturellement hydratant, riche en lycopène.',
+      benefits:['Hydratation max','Antioxydant','Zéro additif'], badge:'', active:true },
+    { id:'orange', name:'Orange Heritage', img:'Orange_Heritage.png',
+      price:1000, desc:'100% orange pressée. Vitamine C maximale.',
+      benefits:['Vitamine C','Immunité','100% naturel'], badge:'', active:true },
+    { id:'detox', name:'Power Detox', img:'Power_Detox.png',
+      price:1000, desc:'Betterave, citron, concombre, persil. Nettoyage en profondeur.',
+      benefits:['Détox profonde','Légumes frais','Régénérant'], badge:'🌱 Détox', active:true },
+    { id:'coco', name:'Eau de Coco', img:'Eau_de_coco.png',
+      price:1000, desc:'Hydratation naturelle riche en électrolytes.',
+      benefits:['Électrolytes','Post-sport','Légère'], badge:'', active:true },
+    { id:'ail', name:"Jus d'Ail Tonus", img:'Jus_d_ail_Tonus.png',
+      price:1000, desc:"Ail pressé + citron. Remède ancestral togolais.",
+      benefits:['Antibactérien','Cardiovasculaire','Tonus'], badge:'💪 Tonus', active:true }
+  ],
+  testimonials: [
+    { name:'Guy A.', role:'Client régulier, Lomé', product:'Cocktail Heritage',
+      text:"Depuis que j'ai découvert Heritage Drink, je ne veux plus d'autre jus. Goût authentique, fraîcheur réelle !", stars:5 },
+    { name:'Jacqueline M.', role:'Cliente fidèle', product:'Super Dotè',
+      text:"Le Super Dotè me fait du bien et m'aide à perdre du poids. J'en ai donné à ma mère et elle a très bien dormi.", stars:5 },
+    { name:'Yawa L.', role:'Cliente Lomé-Plateau', product:'Corossol Heritage',
+      text:"Des saveurs locales et naturelles comme on n'en trouve plus ailleurs.", stars:5 }
+  ],
+  faq: [
+    { q:"Vos jus contiennent-ils du sucre ajouté ?",
+      a:"Jamais. Aucun sucre raffiné, sirop ou édulcorant. Le goût sucré vient uniquement des fruits." },
+    { q:"Comment fonctionne le Quiz Santé ?",
+      a:"3 questions sur votre objectif, votre rythme et vos goûts. Nous recommandons les recettes les plus adaptées." },
+    { q:"Comment fonctionne une cure personnalisée ?",
+      a:"Choisissez objectif, durée (5-21 jours) et jus/jour. Programme jour par jour envoyé via WhatsApp." },
+    { q:"Comment fonctionne le programme de fidélité ?",
+      a:"1 commande = 1 point. À 10 pts : jus offert. À 25 pts : pack offert. À 50 pts : statut Premium." },
+    { q:"Proposez-vous des abonnements ?",
+      a:"Pack Santé (5 jus/sem, 4 000 FCFA) et Pack Famille (10 jus/sem, 7 000 FCFA), livrés chaque lundi." },
+    { q:"Livrez-vous partout à Lomé ?",
+      a:"Principaux quartiers de Lomé. Livraison incluse pour les abonnés." },
+    { q:"Combien de temps se conservent vos jus ?",
+      a:"24 à 48h au réfrigérateur. Idéalement à consommer le jour même." },
+    { q:"Puis-je offrir un jus ou une cure ?",
+      a:"Oui ! Module Offrir Heritage : choisissez destinataire, occasion et pack. Message personnalisé inclus." }
+  ]
+};
+
+const BADGE_OPTIONS = ['', '🔥 Populaire', '💎 Rare', '✨ Nouveau', '🌱 Détox', '💪 Tonus'];
+const STATS_LABELS = {
+  order_click: 'Clics "Commander"',
+  quiz_complete: 'Quiz complétés',
+  cure_created: 'Cures créées',
+  gift_sent: 'Cadeaux envoyés',
+  b2b_sent: 'Demandes B2B'
+};
+const STATS_ORDER = ['order_click','quiz_complete','cure_created','gift_sent','b2b_sent'];
+
+/* =====================================================
+   LOCALSTORAGE — helpers
+===================================================== */
+function hdGet(key, fallback) {
+  try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+  catch(e) { return fallback; }
+}
+function hdSet(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+
+function getSettings() {
+  const s = hdGet('hd_settings', {});
+  return {
+    whatsapp: s.whatsapp || HD_DEFAULTS.whatsapp,
+    address: s.address || HD_DEFAULTS.address,
+    hours: s.hours || HD_DEFAULTS.hours,
+    email: s.email || HD_DEFAULTS.email,
+    instagram: s.instagram || HD_DEFAULTS.instagram,
+    facebook: s.facebook || HD_DEFAULTS.facebook
+  };
+}
+function getPromo() { return hdGet('hd_promo', HD_DEFAULTS.promo); }
+function getProducts() { const p = hdGet('hd_products', null); return (Array.isArray(p) && p.length) ? p : JSON.parse(JSON.stringify(HD_DEFAULTS.products)); }
+function getTestimonials() { const t = hdGet('hd_testimonials', null); return (Array.isArray(t) && t.length) ? t : JSON.parse(JSON.stringify(HD_DEFAULTS.testimonials)); }
+function getFaqList() { const f = hdGet('hd_faq', null); return (Array.isArray(f) && f.length) ? f : JSON.parse(JSON.stringify(HD_DEFAULTS.faq)); }
+function getStats() { return hdGet('hd_stats', {}); }
+function getStatsLog() { return hdGet('hd_stats_log', []); }
+
+function touchLastModified() { localStorage.setItem('hd_last_modified', String(Date.now())); }
+
+function escapeHtml(str) {
+  return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._tid);
+  showToast._tid = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+/* =====================================================
+   AUTHENTIFICATION — SHA-256 (Web Crypto API)
+===================================================== */
+const ADMIN_PASSWORD_HASH = 'e4aba02ee945dcb403b56278cbbbccfb45ca5c9cf55339b2eb9a5c5e09dd5e83'; // sha256("heritage2026")
+const MAX_ATTEMPTS = 3;
+const LOCKOUT_MS = 5 * 60 * 1000;
+
+async function sha256Hex(str) {
+  const enc = new TextEncoder().encode(str);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+function getLoginState() { return hdGet('hd_admin_login_state', { attempts: 0, lockUntil: 0 }); }
+function setLoginState(s) { hdSet('hd_admin_login_state', s); }
+
+let lockInterval = null;
+function renderLock(lockUntil) {
+  const lockEl = document.getElementById('loginLock');
+  const btn = document.getElementById('loginBtn');
+  const input = document.getElementById('loginPassword');
+  clearInterval(lockInterval);
+  function tick() {
+    const remaining = lockUntil - Date.now();
+    if (remaining <= 0) {
+      clearInterval(lockInterval);
+      lockEl.style.display = 'none';
+      btn.disabled = false;
+      input.disabled = false;
+      return;
+    }
+    const m = Math.floor(remaining / 60000);
+    const s = Math.floor((remaining % 60000) / 1000);
+    lockEl.textContent = `🔒 Trop de tentatives. Réessayez dans ${m}:${String(s).padStart(2,'0')}.`;
+    lockEl.style.display = 'block';
+    btn.disabled = true;
+    input.disabled = true;
+  }
+  tick();
+  lockInterval = setInterval(tick, 1000);
+}
+
+async function attemptLogin() {
+  const state = getLoginState();
+  const now = Date.now();
+  if (state.lockUntil && now < state.lockUntil) { renderLock(state.lockUntil); return; }
+
+  const errEl = document.getElementById('loginError');
+  const pwInput = document.getElementById('loginPassword');
+  const hash = await sha256Hex(pwInput.value);
+
+  if (hash === ADMIN_PASSWORD_HASH) {
+    setLoginState({ attempts: 0, lockUntil: 0 });
+    sessionStorage.setItem('hd_admin_session', '1');
+    errEl.textContent = '';
+    showAdminApp();
+  } else {
+    state.attempts = (state.attempts || 0) + 1;
+    if (state.attempts >= MAX_ATTEMPTS) {
+      state.lockUntil = now + LOCKOUT_MS;
+      state.attempts = 0;
+      setLoginState(state);
+      renderLock(state.lockUntil);
+      errEl.textContent = '';
+    } else {
+      setLoginState(state);
+      errEl.textContent = `Mot de passe incorrect (${MAX_ATTEMPTS - state.attempts} tentative(s) restante(s)).`;
+    }
+    pwInput.value = '';
+    pwInput.focus();
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem('hd_admin_session');
+  location.reload();
+}
+
+function showAdminApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminApp').style.display = 'flex';
+  renderAll();
+}
+
+function initAuth() {
+  const state = getLoginState();
+  if (state.lockUntil && Date.now() < state.lockUntil) renderLock(state.lockUntil);
+
+  if (sessionStorage.getItem('hd_admin_session') === '1') {
+    showAdminApp();
+    return;
+  }
+  document.getElementById('loginBtn').addEventListener('click', attemptLogin);
+  document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') attemptLogin(); });
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+}
+
+/* =====================================================
+   NAVIGATION SIDEBAR
+===================================================== */
+function initNav() {
+  document.querySelectorAll('.nav-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const view = btn.dataset.view;
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById('view-' + view).classList.add('active');
+      document.getElementById('viewTitle').textContent = btn.textContent.trim();
+      document.getElementById('sidebar').classList.remove('open');
+      if (view === 'dashboard') renderDashboard();
+      if (view === 'stats') renderStats();
+    });
+  });
+  document.getElementById('hamburgerAdmin').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+  });
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+}
+
+function renderAll() {
+  renderDashboard();
+  renderProductsList();
+  renderPromoModule();
+  renderTestiList();
+  renderFaqList_();
+  renderSettingsModule();
+  renderStats();
+}
+
+/* =====================================================
+   MODULE 1 — TABLEAU DE BORD
+===================================================== */
+function renderDashboard() {
+  const stats = getStats();
+  const cardsEl = document.getElementById('dashStatCards');
+  cardsEl.innerHTML = STATS_ORDER.map(k => `<div class="stat-card"><div class="n">${stats[k] || 0}</div><div class="l">${STATS_LABELS[k]}</div></div>`).join('');
+
+  const max = Math.max(1, ...STATS_ORDER.map(k => stats[k] || 0));
+  document.getElementById('dashBars').innerHTML = STATS_ORDER.map(k => {
+    const v = stats[k] || 0;
+    const pct = Math.round((v / max) * 100);
+    return `<div class="bar-row"><div class="lbl">${STATS_LABELS[k]}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div><div class="val">${v}</div></div>`;
+  }).join('');
+
+  const alerts = [];
+  const inactiveCount = getProducts().filter(p => p.active === false).length;
+  if (inactiveCount > 0) alerts.push(`<div class="alert alert-warn">⚠️ ${inactiveCount} produit(s) désactivé(s) — invisibles sur le site public.</div>`);
+  const promo = getPromo();
+  if (promo && promo.active && promo.text) alerts.push(`<div class="alert alert-info">🎉 Bannière promo active : "${escapeHtml(promo.text)}"</div>`);
+  const lastMod = localStorage.getItem('hd_last_modified');
+  if (lastMod) {
+    const diffMin = Math.round((Date.now() - Number(lastMod)) / 60000);
+    let when = diffMin < 1 ? "à l'instant" : diffMin < 60 ? `il y a ${diffMin} min` : `il y a ${Math.round(diffMin/60)} h`;
+    alerts.push(`<div class="alert alert-neutral">🕒 Dernière modification : ${when}.</div>`);
+  } else {
+    alerts.push(`<div class="alert alert-neutral">🕒 Aucune modification enregistrée pour le moment.</div>`);
+  }
+  document.getElementById('dashAlerts').innerHTML = alerts.join('');
+}
+
+/* =====================================================
+   MODULE 2 — PRODUITS
+===================================================== */
+function badgeSelectHtml(current) {
+  const opts = BADGE_OPTIONS.includes(current) ? BADGE_OPTIONS : [current, ...BADGE_OPTIONS];
+  return opts.map(b => `<option value="${escapeHtml(b)}" ${b === current ? 'selected' : ''}>${b ? escapeHtml(b) : '(aucun)'}</option>`).join('');
+}
+
+function renderProductsList() {
+  const products = getProducts();
+  const list = document.getElementById('productsList');
+  list.innerHTML = products.map((p, i) => `
+    <div class="item-row" data-idx="${i}">
+      <div class="item-head">
+        <div class="item-thumb"><img src="${escapeHtml(p.img)}" alt=""/></div>
+        <div class="item-main">
+          <div class="item-title">${escapeHtml(p.name)}</div>
+          <div class="item-sub">${Number(p.price||0).toLocaleString('fr-FR')} FCFA ${p.badge ? '· ' + escapeHtml(p.badge) : ''}</div>
+        </div>
+        ${p.active === false ? '<span class="item-badge-inactive">Inactif</span>' : ''}
+        <label class="switch" title="Actif / inactif">
+          <input type="checkbox" ${p.active !== false ? 'checked' : ''} onchange="toggleProductActive(${i}, this.checked)"/>
+          <span class="switch-track"></span>
+        </label>
+        <div class="item-actions">
+          <button class="icon-btn" onclick="moveProduct(${i},-1)" ${i===0?'disabled':''} title="Monter">↑</button>
+          <button class="icon-btn" onclick="moveProduct(${i},1)" ${i===products.length-1?'disabled':''} title="Descendre">↓</button>
+          <button class="icon-btn" onclick="toggleProductEdit(${i})" title="Modifier">✎</button>
+          <button class="icon-btn" onclick="deleteProduct(${i})" title="Supprimer">🗑</button>
+        </div>
+      </div>
+      <div class="item-edit" id="prodEdit${i}">
+        <div class="edit-cols">
+          <div>
+            <div class="form-grid">
+              <div class="form-field"><label>Nom</label><input type="text" id="pName${i}" value="${escapeHtml(p.name)}" oninput="updateProductPreview(${i})"/></div>
+              <div class="form-field"><label>Prix (FCFA)</label><input type="number" id="pPrice${i}" value="${p.price}" oninput="updateProductPreview(${i})"/></div>
+              <div class="form-field full"><label>Description</label><textarea id="pDesc${i}" oninput="updateProductPreview(${i})">${escapeHtml(p.desc)}</textarea></div>
+              <div class="form-field full"><label>Bénéfices (séparés par des virgules)</label><input type="text" id="pBenefits${i}" value="${escapeHtml((p.benefits||[]).join(', '))}" oninput="updateProductPreview(${i})"/></div>
+              <div class="form-field"><label>Badge</label><select id="pBadge${i}" onchange="updateProductPreview(${i})">${badgeSelectHtml(p.badge||'')}</select></div>
+              <div class="form-field"><label>Image (nom de fichier)</label><input type="text" id="pImg${i}" value="${escapeHtml(p.img)}" oninput="updateProductPreview(${i})"/></div>
+            </div>
+            <button class="btn btn-gold" onclick="saveProduct(${i})">💾 Enregistrer ce produit</button>
+          </div>
+          <div class="preview-wrap">
+            <div class="preview-label">Aperçu carte site</div>
+            <div id="pPreview${i}"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  products.forEach((p, i) => renderProductPreview(i, p));
+}
+
+function productDraft(i) {
+  const benefitsRaw = document.getElementById('pBenefits'+i).value;
+  return {
+    name: document.getElementById('pName'+i).value.trim(),
+    price: Number(document.getElementById('pPrice'+i).value) || 0,
+    desc: document.getElementById('pDesc'+i).value.trim(),
+    benefits: benefitsRaw.split(',').map(s => s.trim()).filter(Boolean),
+    badge: document.getElementById('pBadge'+i).value,
+    img: document.getElementById('pImg'+i).value.trim()
+  };
+}
+function renderProductPreview(i, p) {
+  const el = document.getElementById('pPreview'+i);
+  if (!el) return;
+  const badge = p.badge ? `<span class="pp-badge">${escapeHtml(p.badge)}</span>` : '';
+  const benefits = (p.benefits||[]).map(b => `<span class="pp-chip">${escapeHtml(b)}</span>`).join('');
+  el.innerHTML = `<div class="pp-card">
+    <div class="pp-thumb"><img src="${escapeHtml(p.img)}" alt=""/>${badge}</div>
+    <div class="pp-body">
+      <div class="pp-name">${escapeHtml(p.name)}</div>
+      <div class="pp-desc">${escapeHtml(p.desc)}</div>
+      <div class="pp-benefits">${benefits}</div>
+      <div class="pp-footer"><div class="pp-price">${Number(p.price||0).toLocaleString('fr-FR')} <small>FCFA</small></div><div class="pp-order">Commander</div></div>
+    </div>
+  </div>`;
+}
+function updateProductPreview(i) { renderProductPreview(i, productDraft(i)); }
+
+function toggleProductEdit(i) {
+  const panel = document.getElementById('prodEdit'+i);
+  const isOpen = panel.classList.contains('open');
+  document.querySelectorAll('.item-edit.open').forEach(p => p.classList.remove('open'));
+  if (!isOpen) panel.classList.add('open');
+}
+function toggleProductActive(i, checked) {
+  const products = getProducts();
+  products[i].active = checked;
+  hdSet('hd_products', products);
+  touchLastModified();
+  renderProductsList();
+  showToast(checked ? 'Produit activé' : 'Produit désactivé');
+}
+function moveProduct(i, dir) {
+  const products = getProducts();
+  const j = i + dir;
+  if (j < 0 || j >= products.length) return;
+  [products[i], products[j]] = [products[j], products[i]];
+  hdSet('hd_products', products);
+  touchLastModified();
+  renderProductsList();
+}
+function saveProduct(i) {
+  const products = getProducts();
+  const draft = productDraft(i);
+  if (!draft.name || !draft.img) { showToast('Nom et image sont requis.'); return; }
+  products[i] = { ...products[i], ...draft };
+  hdSet('hd_products', products);
+  touchLastModified();
+  renderProductsList();
+  showToast('Produit enregistré ✓');
+}
+function deleteProduct(i) {
+  if (!confirm('Supprimer définitivement ce produit ?')) return;
+  const products = getProducts();
+  products.splice(i, 1);
+  hdSet('hd_products', products);
+  touchLastModified();
+  renderProductsList();
+  showToast('Produit supprimé');
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('resetProductsBtn');
+  if (btn) btn.addEventListener('click', () => {
+    if (!confirm('Réinitialiser tous les produits aux valeurs par défaut ? Cette action est irréversible.')) return;
+    hdSet('hd_products', JSON.parse(JSON.stringify(HD_DEFAULTS.products)));
+    touchLastModified();
+    renderProductsList();
+    showToast('Produits réinitialisés');
+  });
+});
+
+/* =====================================================
+   MODULE 3 — BANNIERE PROMO
+===================================================== */
+const PROMO_COLORS = [
+  { label: 'Or', value: '#D4A833' },
+  { label: 'Rouge', value: '#C0392B' },
+  { label: 'Vert', value: '#1A6B38' }
+];
+function contrastText(hex) {
+  const c = (hex || '#D4A833').replace('#','');
+  const r = parseInt(c.substr(0,2),16), g = parseInt(c.substr(2,2),16), b = parseInt(c.substr(4,2),16);
+  const lum = (0.299*r + 0.587*g + 0.114*b) / 255;
+  return lum > 0.55 ? '#0D3B1F' : '#FAF6EE';
+}
+function renderPromoSwatches(selected) {
+  const el = document.getElementById('promoSwatches');
+  el.innerHTML = PROMO_COLORS.map(c => `<div class="swatch ${c.value.toLowerCase()===String(selected).toLowerCase()?'active':''}" style="background:${c.value}" title="${c.label}" onclick="selectPromoColor('${c.value}')"></div>`).join('');
+}
+function selectPromoColor(hex) {
+  document.getElementById('promoColorCustom').value = hex;
+  renderPromoSwatches(hex);
+  updatePromoPreview();
+}
+function updatePromoPreview() {
+  const text = document.getElementById('promoText').value || '(texte vide)';
+  const color = document.getElementById('promoColorCustom').value;
+  const prev = document.getElementById('promoPreview');
+  prev.textContent = text;
+  prev.style.background = color;
+  prev.style.color = contrastText(color);
+  renderPromoSwatches(color);
+}
+function renderPromoModule() {
+  const promo = getPromo();
+  document.getElementById('promoText').value = promo.text || '';
+  document.getElementById('promoColorCustom').value = promo.color || '#D4A833';
+  document.getElementById('promoActive').checked = !!promo.active;
+  document.getElementById('promoActiveLabel').textContent = promo.active ? 'Bannière active' : 'Bannière inactive';
+  document.getElementById('promoExpiry').value = promo.expiresAt ? String(promo.expiresAt).slice(0,10) : '';
+  renderPromoSwatches(promo.color || '#D4A833');
+  updatePromoPreview();
+
+  document.getElementById('promoText').oninput = updatePromoPreview;
+  document.getElementById('promoColorCustom').oninput = () => { renderPromoSwatches(document.getElementById('promoColorCustom').value); updatePromoPreview(); };
+  document.getElementById('promoActive').onchange = e => {
+    document.getElementById('promoActiveLabel').textContent = e.target.checked ? 'Bannière active' : 'Bannière inactive';
+  };
+  document.getElementById('savePromoBtn').onclick = () => {
+    const newPromo = {
+      active: document.getElementById('promoActive').checked,
+      text: document.getElementById('promoText').value.trim(),
+      color: document.getElementById('promoColorCustom').value,
+      expiresAt: document.getElementById('promoExpiry').value || null
+    };
+    hdSet('hd_promo', newPromo);
+    touchLastModified();
+    showToast('Bannière promo enregistrée ✓');
+  };
+}
+
+/* =====================================================
+   MODULE 4 — TEMOIGNAGES
+===================================================== */
+function renderTestiList() {
+  const list = getTestimonials();
+  const el = document.getElementById('testiList');
+  if (!list.length) { el.innerHTML = '<div class="empty-state">Aucun témoignage. Ajoutez-en un ci-dessus.</div>'; return; }
+  el.innerHTML = list.map((t, i) => `
+    <div class="item-row">
+      <div class="item-head">
+        <div class="item-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--cream);font-family:var(--fd);font-weight:700">${escapeHtml((t.name||'?').charAt(0).toUpperCase())}</div>
+        <div class="item-main">
+          <div class="item-title">${escapeHtml(t.name)} ${'★'.repeat(Math.max(1,Math.min(5,t.stars||5)))}</div>
+          <div class="item-sub">${escapeHtml(t.role)} — ${escapeHtml(t.product)}</div>
+        </div>
+        ${i >= 6 ? '<span class="item-badge-inactive">Non affiché</span>' : ''}
+        <div class="item-actions">
+          <button class="icon-btn" onclick="moveTesti(${i},-1)" ${i===0?'disabled':''} title="Monter">↑</button>
+          <button class="icon-btn" onclick="moveTesti(${i},1)" ${i===list.length-1?'disabled':''} title="Descendre">↓</button>
+          <button class="icon-btn" onclick="toggleTestiEdit(${i})" title="Modifier">✎</button>
+          <button class="icon-btn" onclick="deleteTesti(${i})" title="Supprimer">🗑</button>
+        </div>
+      </div>
+      <div class="item-edit" id="testiEdit${i}">
+        <div class="form-grid">
+          <div class="form-field"><label>Nom</label><input type="text" id="tName${i}" value="${escapeHtml(t.name)}"/></div>
+          <div class="form-field"><label>Rôle</label><input type="text" id="tRole${i}" value="${escapeHtml(t.role)}"/></div>
+          <div class="form-field"><label>Produit associé</label><input type="text" id="tProduct${i}" value="${escapeHtml(t.product)}"/></div>
+          <div class="form-field"><label>Étoiles</label>
+            <div class="stars-input" id="tStars${i}">${[1,2,3,4,5].map(n=>`<button type="button" class="star-pick ${n<=(t.stars||5)?'on':''}" onclick="setTestiStars(${i},${n})">★</button>`).join('')}</div>
+          </div>
+          <div class="form-field full"><label>Texte du témoignage</label><textarea id="tText${i}">${escapeHtml(t.text)}</textarea></div>
+        </div>
+        <button class="btn btn-gold" onclick="saveTesti(${i})">💾 Enregistrer</button>
+      </div>
+    </div>
+  `).join('');
+}
+function toggleTestiEdit(i) {
+  const panel = document.getElementById('testiEdit'+i);
+  const isOpen = panel.classList.contains('open');
+  document.querySelectorAll('.item-edit.open').forEach(p => p.classList.remove('open'));
+  if (!isOpen) panel.classList.add('open');
+}
+function setTestiStars(i, n) {
+  document.querySelectorAll('#tStars'+i+' .star-pick').forEach((b, idx) => b.classList.toggle('on', idx < n));
+  document.getElementById('tStars'+i).dataset.value = n;
+}
+function moveTesti(i, dir) {
+  const list = getTestimonials();
+  const j = i + dir;
+  if (j < 0 || j >= list.length) return;
+  [list[i], list[j]] = [list[j], list[i]];
+  hdSet('hd_testimonials', list);
+  touchLastModified();
+  renderTestiList();
+}
+function saveTesti(i) {
+  const list = getTestimonials();
+  const starsEl = document.getElementById('tStars'+i);
+  const starsVal = starsEl.dataset.value ? Number(starsEl.dataset.value) : (list[i].stars || 5);
+  list[i] = {
+    name: document.getElementById('tName'+i).value.trim(),
+    role: document.getElementById('tRole'+i).value.trim(),
+    product: document.getElementById('tProduct'+i).value.trim(),
+    text: document.getElementById('tText'+i).value.trim(),
+    stars: starsVal
+  };
+  hdSet('hd_testimonials', list);
+  touchLastModified();
+  renderTestiList();
+  showToast('Témoignage enregistré ✓');
+}
+function deleteTesti(i) {
+  if (!confirm('Supprimer ce témoignage ?')) return;
+  const list = getTestimonials();
+  list.splice(i, 1);
+  hdSet('hd_testimonials', list);
+  touchLastModified();
+  renderTestiList();
+}
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('addTestiBtn').addEventListener('click', () => {
+    const list = getTestimonials();
+    list.push({ name: 'Nouveau client', role: '', product: '', text: '', stars: 5 });
+    hdSet('hd_testimonials', list);
+    touchLastModified();
+    renderTestiList();
+    toggleTestiEdit(list.length - 1);
+  });
+});
+
+/* =====================================================
+   MODULE 5 — FAQ
+===================================================== */
+function renderFaqList_() {
+  const list = getFaqList();
+  const el = document.getElementById('faqList');
+  if (!list.length) { el.innerHTML = '<div class="empty-state">Aucune question. Ajoutez-en une ci-dessus.</div>'; return; }
+  el.innerHTML = list.map((f, i) => `
+    <div class="item-row">
+      <div class="item-head">
+        <div class="item-main">
+          <div class="item-title">${escapeHtml(f.q)}</div>
+        </div>
+        ${i >= 10 ? '<span class="item-badge-inactive">Non affiché</span>' : ''}
+        <div class="item-actions">
+          <button class="icon-btn" onclick="moveFaq(${i},-1)" ${i===0?'disabled':''} title="Monter">↑</button>
+          <button class="icon-btn" onclick="moveFaq(${i},1)" ${i===list.length-1?'disabled':''} title="Descendre">↓</button>
+          <button class="icon-btn" onclick="toggleFaqEdit(${i})" title="Modifier">✎</button>
+          <button class="icon-btn" onclick="deleteFaq(${i})" title="Supprimer">🗑</button>
+        </div>
+      </div>
+      <div class="item-edit" id="faqEdit${i}">
+        <div class="form-field"><label>Question</label><input type="text" id="fQ${i}" value="${escapeHtml(f.q)}"/></div>
+        <div class="form-field"><label>Réponse</label><textarea id="fA${i}">${escapeHtml(f.a)}</textarea></div>
+        <button class="btn btn-gold" onclick="saveFaq(${i})">💾 Enregistrer</button>
+      </div>
+    </div>
+  `).join('');
+}
+function toggleFaqEdit(i) {
+  const panel = document.getElementById('faqEdit'+i);
+  const isOpen = panel.classList.contains('open');
+  document.querySelectorAll('.item-edit.open').forEach(p => p.classList.remove('open'));
+  if (!isOpen) panel.classList.add('open');
+}
+function moveFaq(i, dir) {
+  const list = getFaqList();
+  const j = i + dir;
+  if (j < 0 || j >= list.length) return;
+  [list[i], list[j]] = [list[j], list[i]];
+  hdSet('hd_faq', list);
+  touchLastModified();
+  renderFaqList_();
+}
+function saveFaq(i) {
+  const list = getFaqList();
+  list[i] = { q: document.getElementById('fQ'+i).value.trim(), a: document.getElementById('fA'+i).value.trim() };
+  hdSet('hd_faq', list);
+  touchLastModified();
+  renderFaqList_();
+  showToast('Question enregistrée ✓');
+}
+function deleteFaq(i) {
+  if (!confirm('Supprimer cette question ?')) return;
+  const list = getFaqList();
+  list.splice(i, 1);
+  hdSet('hd_faq', list);
+  touchLastModified();
+  renderFaqList_();
+}
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('addFaqBtn').addEventListener('click', () => {
+    const list = getFaqList();
+    list.push({ q: 'Nouvelle question', a: '' });
+    hdSet('hd_faq', list);
+    touchLastModified();
+    renderFaqList_();
+    toggleFaqEdit(list.length - 1);
+  });
+});
+
+/* =====================================================
+   MODULE 6 — PARAMETRES GENERAUX
+===================================================== */
+function renderSettingsModule() {
+  const s = getSettings();
+  document.getElementById('setWhatsapp').value = s.whatsapp;
+  document.getElementById('setEmail').value = s.email;
+  document.getElementById('setAddress').value = s.address;
+  document.getElementById('setHours').value = s.hours;
+  document.getElementById('setInstagram').value = s.instagram;
+  document.getElementById('setFacebook').value = s.facebook;
+
+  document.getElementById('saveSettingsBtn').onclick = () => {
+    const whatsapp = document.getElementById('setWhatsapp').value.replace(/\D/g,'').trim();
+    if (!whatsapp) { showToast('Le numéro WhatsApp est requis.'); return; }
+    hdSet('hd_settings', {
+      whatsapp,
+      email: document.getElementById('setEmail').value.trim(),
+      address: document.getElementById('setAddress').value.trim(),
+      hours: document.getElementById('setHours').value.trim(),
+      instagram: document.getElementById('setInstagram').value.trim(),
+      facebook: document.getElementById('setFacebook').value.trim()
+    });
+    touchLastModified();
+    showToast('Paramètres enregistrés ✓');
+  };
+  document.getElementById('testWaBtn').onclick = () => {
+    const num = document.getElementById('setWhatsapp').value.replace(/\D/g,'');
+    if (!num) { showToast("Saisissez un numéro d'abord."); return; }
+    window.open('https://wa.me/' + num, '_blank');
+  };
+}
+
+/* =====================================================
+   MODULE 7 — STATISTIQUES
+===================================================== */
+function renderStats() {
+  const stats = getStats();
+  document.getElementById('statsCards').innerHTML = STATS_ORDER.map(k =>
+    `<div class="stat-card"><div class="n">${stats[k] || 0}</div><div class="l">${STATS_LABELS[k]}</div></div>`
+  ).join('');
+
+  const log = getStatsLog();
+  const logEl = document.getElementById('statsLog');
+  if (!log.length) {
+    logEl.innerHTML = '<div class="empty-state">Aucune action enregistrée pour le moment.</div>';
+  } else {
+    logEl.innerHTML = log.map(entry => {
+      const d = new Date(entry.ts);
+      const dateStr = d.toLocaleDateString('fr-FR') + ' à ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+      return `<div class="log-item"><span class="tag">${STATS_LABELS[entry.type] || entry.type}</span><span class="time">${dateStr}</span></div>`;
+    }).join('');
+  }
+}
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('resetStatsBtn').addEventListener('click', () => {
+    if (!confirm('Réinitialiser toutes les statistiques ? Cette action est irréversible.')) return;
+    localStorage.removeItem('hd_stats');
+    localStorage.removeItem('hd_stats_log');
+    touchLastModified();
+    renderStats();
+    renderDashboard();
+    showToast('Statistiques réinitialisées');
+  });
+  document.getElementById('exportCsvBtn').addEventListener('click', () => {
+    const log = getStatsLog();
+    if (!log.length) { showToast('Aucune donnée à exporter.'); return; }
+    const rows = [['Date','Heure','Action']];
+    log.forEach(entry => {
+      const d = new Date(entry.ts);
+      rows.push([d.toLocaleDateString('fr-FR'), d.toLocaleTimeString('fr-FR'), STATS_LABELS[entry.type] || entry.type]);
+    });
+    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'heritage-drink-stats-' + new Date().toISOString().slice(0,10) + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+});
+
+/* =====================================================
+   INIT
+===================================================== */
+initAuth();
+initNav();
+</script>
+</body>
+</html>

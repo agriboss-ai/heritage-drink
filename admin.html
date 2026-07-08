@@ -197,7 +197,7 @@ a{color:inherit}
 <!-- ═══════════ LOGIN SCREEN ═══════════ -->
 <div class="login-screen" id="loginScreen">
   <div class="login-box">
-    <div class="login-logo"><img src="logo-heritage.png" alt="Heritage Drink" style="height:44px;width:auto;object-fit:contain;filter:brightness(0) invert(1);margin:0 auto"/><small>ESPACE ADMIN</small></div>
+    <div class="login-logo"><img src="logo-heritage.png" alt="Heritage Drink" style="height:60px;width:auto;object-fit:contain;filter:brightness(0) invert(1);margin:0 auto"/><small>ESPACE ADMIN</small></div>
     <p class="login-sub">Gestion des produits, promotions, témoignages et statistiques du site.</p>
     <div class="form-field">
       <label>Mot de passe</label>
@@ -212,7 +212,7 @@ a{color:inherit}
 <!-- ═══════════ ADMIN APP ═══════════ -->
 <div class="admin-app" id="adminApp" style="display:none">
   <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><img src="logo-heritage.png" alt="Heritage Drink" style="height:34px;width:auto;object-fit:contain;filter:brightness(0) invert(1)"/></div>
+    <div class="sidebar-logo"><img src="logo-heritage.png" alt="Heritage Drink" style="height:44px;width:auto;object-fit:contain;filter:brightness(0) invert(1)"/></div>
     <nav class="sidebar-nav" id="sidebarNav">
       <button class="nav-item active" data-view="dashboard"><span class="ic">📊</span> Tableau de bord</button>
       <button class="nav-item" data-view="products"><span class="ic">🥤</span> Produits</button>
@@ -258,6 +258,7 @@ a{color:inherit}
         <div class="section-head">
           <h2>Gestion des produits</h2>
           <div style="display:flex;gap:10px">
+            <button class="btn btn-gold btn-sm" id="addProductBtn">+ Ajouter un produit</button>
             <button class="btn btn-outline btn-sm" id="resetProductsBtn">↩ Réinitialiser aux valeurs par défaut</button>
           </div>
         </div>
@@ -323,9 +324,13 @@ a{color:inherit}
       <section class="view" data-view="gallery" id="view-gallery">
         <div class="section-head">
           <h2>Galerie communauté</h2>
-          <button class="btn btn-gold btn-sm" id="addGalleryBtn">+ Ajouter une photo</button>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-gold btn-sm" id="addGalleryBtn">📷 Ajouter une photo</button>
+            <button class="btn btn-outline btn-sm" id="addGalleryUrlBtn">+ Via une URL</button>
+          </div>
         </div>
-        <p class="section-note">Ajoutez une URL d'image ou le nom d'un fichier présent dans le dossier du site. Maximum 12 photos affichées sur le site public. Une fois au moins une photo ajoutée, elle remplace les emplacements vides de la section "Heritage en images".</p>
+        <input type="file" id="galleryFileInput" accept="image/*" style="display:none"/>
+        <p class="section-note">Cliquez sur "Ajouter une photo" pour choisir une image depuis votre ordinateur ou téléphone (elle est redimensionnée automatiquement). "Via une URL" permet d'utiliser une image déjà en ligne ou un fichier présent dans le dossier du site. Maximum 12 photos affichées sur le site public. Une fois au moins une photo ajoutée, elle remplace les emplacements vides de la section "Heritage en images".</p>
         <div id="galleryList"></div>
       </section>
 
@@ -358,6 +363,11 @@ a{color:inherit}
             <div class="form-field">
               <label>Lien Facebook</label>
               <input type="text" id="setFacebook" placeholder="https://www.facebook.com/..."/>
+            </div>
+            <div class="form-field full">
+              <label>Lien de géolocalisation (Google Maps)</label>
+              <input type="text" id="setMapsLink" placeholder="https://maps.app.goo.gl/..."/>
+              <div class="hint">Ouvrez votre point de vente sur Google Maps, cliquez sur "Partager" puis copiez le lien ici. L'adresse dans le footer du site deviendra cliquable vers cette position.</div>
             </div>
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -421,6 +431,7 @@ const HD_DEFAULTS = {
   email: 'heritagedrink@gmail.com',
   instagram: 'https://www.instagram.com/heritagedrink',
   facebook: 'https://www.facebook.com/share/1Bt51b16pG/',
+  mapsLink: '',
   promo: { active: false, text: '', color: '#D4A833' },
   products: [
     { id:'cocktail', name:'Cocktail Heritage', img:'Cocktail_Heritage.png',
@@ -506,7 +517,8 @@ function getSettings() {
     hours: s.hours || HD_DEFAULTS.hours,
     email: s.email || HD_DEFAULTS.email,
     instagram: s.instagram || HD_DEFAULTS.instagram,
-    facebook: s.facebook || HD_DEFAULTS.facebook
+    facebook: s.facebook || HD_DEFAULTS.facebook,
+    mapsLink: s.mapsLink || HD_DEFAULTS.mapsLink
   };
 }
 function getPromo() { return hdGet('hd_promo', HD_DEFAULTS.promo); }
@@ -712,7 +724,7 @@ function renderProductsList() {
         <div class="item-thumb"><img src="${escapeHtml(p.img)}" alt=""/></div>
         <div class="item-main">
           <div class="item-title">${escapeHtml(p.name)}</div>
-          <div class="item-sub">${Number(p.price||0).toLocaleString('fr-FR')} FCFA ${p.badge ? '· ' + escapeHtml(p.badge) : ''}</div>
+          <div class="item-sub">${Number(p.price||0).toLocaleString('fr-FR')} FCFA${p.qty ? ' · ' + p.qty + ' ' + escapeHtml(p.unit||'ml') : ''}${p.badge ? ' · ' + escapeHtml(p.badge) : ''}</div>
         </div>
         ${p.active === false ? '<span class="item-badge-inactive">Inactif</span>' : ''}
         <label class="switch" title="Actif / inactif">
@@ -732,6 +744,14 @@ function renderProductsList() {
             <div class="form-grid">
               <div class="form-field"><label>Nom</label><input type="text" id="pName${i}" value="${escapeHtml(p.name)}" oninput="updateProductPreview(${i})"/></div>
               <div class="form-field"><label>Prix (FCFA)</label><input type="number" id="pPrice${i}" value="${p.price}" oninput="updateProductPreview(${i})"/></div>
+              <div class="form-field"><label>Quantité</label><input type="number" min="0" step="1" id="pQty${i}" value="${p.qty || ''}" placeholder="Ex : 500" oninput="updateProductPreview(${i})"/></div>
+              <div class="form-field"><label>Unité</label>
+                <select id="pUnit${i}" onchange="updateProductPreview(${i})">
+                  <option value="ml" ${(p.unit||'ml')==='ml'?'selected':''}>ml</option>
+                  <option value="cl" ${p.unit==='cl'?'selected':''}>cl</option>
+                  <option value="L" ${p.unit==='L'?'selected':''}>L</option>
+                </select>
+              </div>
               <div class="form-field full"><label>Description</label><textarea id="pDesc${i}" oninput="updateProductPreview(${i})">${escapeHtml(p.desc)}</textarea></div>
               <div class="form-field full"><label>Bénéfices (séparés par des virgules)</label><input type="text" id="pBenefits${i}" value="${escapeHtml((p.benefits||[]).join(', '))}" oninput="updateProductPreview(${i})"/></div>
               <div class="form-field"><label>Badge</label><select id="pBadge${i}" onchange="updateProductPreview(${i})">${badgeSelectHtml(p.badge||'')}</select></div>
@@ -755,6 +775,8 @@ function productDraft(i) {
   return {
     name: document.getElementById('pName'+i).value.trim(),
     price: Number(document.getElementById('pPrice'+i).value) || 0,
+    qty: Number(document.getElementById('pQty'+i).value) || null,
+    unit: document.getElementById('pUnit'+i).value,
     desc: document.getElementById('pDesc'+i).value.trim(),
     benefits: benefitsRaw.split(',').map(s => s.trim()).filter(Boolean),
     badge: document.getElementById('pBadge'+i).value,
@@ -766,13 +788,14 @@ function renderProductPreview(i, p) {
   if (!el) return;
   const badge = p.badge ? `<span class="pp-badge">${escapeHtml(p.badge)}</span>` : '';
   const benefits = (p.benefits||[]).map(b => `<span class="pp-chip">${escapeHtml(b)}</span>`).join('');
+  const qtyLabel = p.qty ? `<small style="display:block;color:rgba(250,246,238,.4);font-size:.62rem;margin-top:2px">${p.qty} ${escapeHtml(p.unit||'ml')}</small>` : '';
   el.innerHTML = `<div class="pp-card">
     <div class="pp-thumb"><img src="${escapeHtml(p.img)}" alt=""/>${badge}</div>
     <div class="pp-body">
       <div class="pp-name">${escapeHtml(p.name)}</div>
       <div class="pp-desc">${escapeHtml(p.desc)}</div>
       <div class="pp-benefits">${benefits}</div>
-      <div class="pp-footer"><div class="pp-price">${Number(p.price||0).toLocaleString('fr-FR')} <small>FCFA</small></div><div class="pp-order">Commander</div></div>
+      <div class="pp-footer"><div class="pp-price">${Number(p.price||0).toLocaleString('fr-FR')} <small>FCFA</small>${qtyLabel}</div><div class="pp-order">Commander</div></div>
     </div>
   </div>`;
 }
@@ -820,7 +843,38 @@ function deleteProduct(i) {
   renderProductsList();
   showToast('Produit supprimé');
 }
+function generateProductId(name) {
+  const base = (name || 'produit').toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'produit';
+  const existing = new Set(getProducts().map(p => p.id));
+  let id = base, n = 2;
+  while (existing.has(id)) { id = base + '-' + n; n++; }
+  return id;
+}
+function addProduct() {
+  const products = getProducts();
+  const newProduct = {
+    id: generateProductId('nouveau-produit-' + (products.length + 1)),
+    name: 'Nouveau produit',
+    img: '',
+    price: 1000,
+    qty: null,
+    unit: 'ml',
+    desc: '',
+    benefits: [],
+    badge: '',
+    active: true
+  };
+  products.push(newProduct);
+  hdSet('hd_products', products);
+  touchLastModified();
+  renderProductsList();
+  toggleProductEdit(products.length - 1);
+  document.getElementById('view-products').scrollIntoView({ behavior: 'smooth' });
+  showToast('Produit créé — complétez ses informations ci-dessous');
+}
 document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('addProductBtn').addEventListener('click', addProduct);
   const btn = document.getElementById('resetProductsBtn');
   if (btn) btn.addEventListener('click', () => {
     if (!confirm('Réinitialiser tous les produits aux valeurs par défaut ? Cette action est irréversible.')) return;
@@ -1120,8 +1174,56 @@ function deleteGalleryPhoto(i) {
   touchLastModified();
   renderGalleryList();
 }
+function readAndCompressImage(file, maxDim, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+          else { w = Math.round(w * maxDim / h); h = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => reject(new Error('image-load-failed'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('file-read-failed'));
+    reader.readAsDataURL(file);
+  });
+}
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('addGalleryBtn').addEventListener('click', () => {
+    if (getGallery().length >= 12) { showToast('Maximum 12 photos.'); return; }
+    document.getElementById('galleryFileInput').click();
+  });
+  document.getElementById('galleryFileInput').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { showToast('Veuillez choisir un fichier image.'); return; }
+    const list = getGallery();
+    if (list.length >= 12) { showToast('Maximum 12 photos.'); return; }
+    showToast('Traitement de la photo…');
+    try {
+      const dataUrl = await readAndCompressImage(file, 1200, 0.82);
+      const freshList = getGallery();
+      freshList.push({ url: dataUrl, caption: '' });
+      hdSet('hd_gallery', freshList);
+      touchLastModified();
+      renderGalleryList();
+      toggleGalleryEdit(freshList.length - 1);
+      showToast('Photo ajoutée ✓');
+    } catch (err) {
+      showToast("Erreur lors du traitement de l'image.");
+    }
+  });
+  document.getElementById('addGalleryUrlBtn').addEventListener('click', () => {
     const list = getGallery();
     if (list.length >= 12) { showToast('Maximum 12 photos.'); return; }
     list.push({ url: '', caption: '' });
@@ -1143,6 +1245,7 @@ function renderSettingsModule() {
   document.getElementById('setHours').value = s.hours;
   document.getElementById('setInstagram').value = s.instagram;
   document.getElementById('setFacebook').value = s.facebook;
+  document.getElementById('setMapsLink').value = s.mapsLink;
 
   document.getElementById('saveSettingsBtn').onclick = () => {
     const whatsapp = document.getElementById('setWhatsapp').value.replace(/\D/g,'').trim();
@@ -1153,7 +1256,8 @@ function renderSettingsModule() {
       address: document.getElementById('setAddress').value.trim(),
       hours: document.getElementById('setHours').value.trim(),
       instagram: document.getElementById('setInstagram').value.trim(),
-      facebook: document.getElementById('setFacebook').value.trim()
+      facebook: document.getElementById('setFacebook').value.trim(),
+      mapsLink: document.getElementById('setMapsLink').value.trim()
     });
     touchLastModified();
     showToast('Paramètres enregistrés ✓');

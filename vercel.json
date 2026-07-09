@@ -1,8 +1,7 @@
 {
-  "version": 2,
-  "name": "heritage-drink",
-  "routes": [
-    { "src": "/admin", "dest": "/admin.html" },
-    { "src": "/(.*)", "dest": "/$1" }
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/admin", "destination": "/admin.html" }
   ]
 }

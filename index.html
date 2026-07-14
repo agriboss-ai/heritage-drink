@@ -53,7 +53,12 @@
     .hamburger span{display:block;width:24px;height:2px;background:var(--text);border-radius:2px}
 
     /* ── HERO ── */
-    .hero{min-height:92vh;background:var(--cream);display:grid;grid-template-columns:55% 45%;align-items:center;padding:150px 6vw 80px;gap:40px}
+    .hero{min-height:92vh;background:var(--cream);display:grid;grid-template-columns:55% 45%;align-items:center;padding:150px 6vw 80px;gap:40px;position:relative}
+    .hero-scroll-indicator{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);display:flex;color:var(--muted);opacity:.6;animation:bounceArrow 2s ease-in-out infinite;transition:opacity .2s}
+    .hero-scroll-indicator:hover{opacity:1}
+    @keyframes bounceArrow{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+    @media(prefers-reduced-motion:reduce){.hero-scroll-indicator{animation:none}}
+    @media(max-width:900px){.hero-scroll-indicator{display:none}}
     .hero-label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:20px}
     .hero h1{font-size:clamp(2.4rem,5vw,72px);font-weight:800;letter-spacing:-2px;line-height:1.05;color:var(--text);margin-bottom:24px}
     .hero-desc{font-size:18px;line-height:1.7;color:var(--muted);max-width:420px;margin-bottom:36px}
@@ -73,8 +78,8 @@
     .stat-num span{color:var(--muted)}
     .stat-label{display:none}
     .hero-visual{display:flex;align-items:center;justify-content:center}
-    .hero-circle{width:min(460px,90%);aspect-ratio:1;border-radius:50%;background:#F0EBE0;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative}
-    .hero-circle img{width:100%;height:100%;object-fit:cover;object-position:center}
+    .hero-circle{width:min(420px,90%);aspect-ratio:1;border-radius:50%;background:#F0EBE0;display:flex;align-items:center;justify-content:center;position:relative}
+    .hero-circle img{width:90%;height:90%;object-fit:contain}
     .hero-badge-float{position:absolute;bottom:8%;left:6%;background:var(--gold);color:var(--white);font-size:.66rem;font-weight:700;letter-spacing:.05em;padding:6px 13px;border-radius:999px;text-transform:uppercase}
 
     /* ── MARQUEE ── */
@@ -135,7 +140,6 @@
     .product-desc{font-size:14px;line-height:1.6;color:var(--muted);flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .p-price{font-weight:800;font-size:22px;color:var(--gold);margin-top:6px}
     .p-price small{font-size:12px;font-weight:400;color:var(--muted);margin-left:2px}
-    .p-qty{font-size:12px;font-weight:500;color:var(--muted);margin-left:4px}
     .btn-order{display:flex;align-items:center;justify-content:center;height:44px;background:var(--green);color:var(--white);border-radius:8px;font-weight:600;font-size:14px;margin-top:6px;transition:opacity .2s}
     .btn-order:hover{opacity:.9}
     .product-card-special{border:2px dashed var(--border);background:var(--cream)}
@@ -278,6 +282,8 @@
 
     /* ── GIFT ── */
     .gift{background:var(--white)}
+    .custom-juice{background:var(--cream)}
+    .custom-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
     .gift-box{background:var(--cream);border-radius:16px;padding:56px 5vw;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
     .gift-feature{display:flex;gap:10px;align-items:center}
     .gift-feature span.txt{color:var(--text);font-size:.88rem}
@@ -324,6 +330,13 @@
       .testi-grid{grid-auto-flow:column;grid-auto-columns:82%;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px;grid-template-columns:unset}
       .testi-card{scroll-snap-align:start}
     }
+    .testi-wa-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:20px}
+    .testi-wa-card{position:relative;aspect-ratio:9/16;border-radius:16px;overflow:hidden;background:#F0EBE0;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center}
+    .testi-wa-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s}
+    .testi-wa-card img.loaded{opacity:1}
+    .testi-wa-card img.loaded + .testi-wa-fallback{display:none}
+    .testi-wa-fallback{font-size:13px;font-weight:600;color:var(--muted)}
+    @media(max-width:900px){.testi-wa-grid{grid-template-columns:1fr}}
 
     /* ── FAQ ── */
     .faq{background:var(--white)}
@@ -370,6 +383,14 @@
     /* ── SCROLL PROGRESS ── */
     #scrollProgress{position:fixed;top:0;left:0;height:2px;width:0%;background:var(--green);z-index:400;transition:width .1s linear}
 
+    /* ── WELCOME OVERLAY ── */
+    #welcomeOverlay{position:fixed;inset:0;z-index:500;background:rgba(255,255,255,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s var(--ease)}
+    #welcomeOverlay.show{opacity:1;pointer-events:auto}
+    .welcome-box{background:var(--white);border-radius:16px;padding:44px 40px;text-align:center;max-width:360px;margin:0 20px;box-shadow:0 20px 60px rgba(0,0,0,.15);transform:scale(.95);transition:transform .5s var(--ease)}
+    #welcomeOverlay.show .welcome-box{transform:scale(1)}
+    .welcome-title{font-size:1.4rem;font-weight:800;color:var(--text);margin-bottom:8px;letter-spacing:-.5px}
+    .welcome-sub{font-size:.95rem;color:var(--muted)}
+
     /* ── WA FLOAT ── */
     .wa-float{position:fixed;bottom:24px;right:24px;z-index:300;display:flex;align-items:center;gap:10px}
     .wa-label{background:var(--text);color:var(--white);font-size:.76rem;font-weight:600;padding:8px 15px;border-radius:999px;box-shadow:0 4px 16px rgba(0,0,0,.2);white-space:nowrap;opacity:0;transform:translateX(10px);transition:opacity .3s,transform .3s;pointer-events:none}
@@ -399,13 +420,13 @@
 
     /* ── RESPONSIVE ── */
     @media(max-width:960px){
-      nav{padding:8px 5vw}
-      .nav-logo img{height:44px!important}
+      nav{padding:10px 5vw}
+      .nav-logo img{height:36px!important}
       .hero{grid-template-columns:1fr;padding-top:100px;min-height:auto}
       .hero-visual{order:-1;margin-bottom:20px}
-      .hero-circle{width:300px}
+      .hero-circle{width:280px}
       .products-grid{grid-template-columns:repeat(2,1fr)}
-      .cure-grid,.fidelity-grid,.gift-box,.b2b-grid,.story-grid{grid-template-columns:1fr}
+      .cure-grid,.fidelity-grid,.gift-box,.b2b-grid,.story-grid,.custom-grid{grid-template-columns:1fr}
       .sub-grid{grid-template-columns:1fr}
       .sub-card.featured{transform:scale(1)}
       .faq-grid{grid-template-columns:1fr}
@@ -427,9 +448,17 @@
 
 <div id="scrollProgress" aria-hidden="true"></div>
 
+<!-- WELCOME OVERLAY -->
+<div id="welcomeOverlay" aria-hidden="true">
+  <div class="welcome-box">
+    <div class="welcome-title">Bienvenue chez Heritage Drink</div>
+    <div class="welcome-sub">Où santé et délices se rencontrent.</div>
+  </div>
+</div>
+
 <!-- NAV -->
 <nav id="mainNav">
-  <a href="#" class="nav-logo"><img src="logo-heritage.png" alt="Heritage Drink" style="height:56px;width:auto;object-fit:contain;display:block"/></a>
+  <a href="#" class="nav-logo"><img src="logo-heritage.png" alt="Heritage Drink" style="height:44px;width:auto;object-fit:contain;display:block"/></a>
   <ul class="nav-links" id="navLinks">
     <li><a href="#products">Nos Jus</a></li>
     <li><a href="#quiz">Quiz Santé</a></li>
@@ -462,13 +491,16 @@
       <span class="hero-badge-float">⭐ Le plus populaire</span>
     </div>
   </div>
+  <a href="#promesse" class="hero-scroll-indicator" aria-label="Défiler vers le bas">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+  </a>
 </section>
 
 <!-- MARQUEE -->
 <div class="marquee" aria-hidden="true">
   <div class="marquee-track">
-    <span>Pressé ce matin</span><span class="dot">·</span><span>Zéro sucre</span><span class="dot">·</span><span>100% Togo</span><span class="dot">·</span><span>Fruits locaux</span><span class="dot">·</span><span>Sans additifs</span><span class="dot">·</span><span>Lomé, Togo</span><span class="dot">·</span><span>Livraison disponible</span><span class="dot">·</span>
-    <span>Pressé ce matin</span><span class="dot">·</span><span>Zéro sucre</span><span class="dot">·</span><span>100% Togo</span><span class="dot">·</span><span>Fruits locaux</span><span class="dot">·</span><span>Sans additifs</span><span class="dot">·</span><span>Lomé, Togo</span><span class="dot">·</span><span>Livraison disponible</span><span class="dot">·</span>
+    <span>Pressé chaque matin</span><span class="dot">·</span><span>Zéro sucre</span><span class="dot">·</span><span>100% Togo</span><span class="dot">·</span><span>Fruits locaux</span><span class="dot">·</span><span>Sans additifs</span><span class="dot">·</span><span>Lomé, Togo</span><span class="dot">·</span><span>Livraison disponible</span><span class="dot">·</span>
+    <span>Pressé chaque matin</span><span class="dot">·</span><span>Zéro sucre</span><span class="dot">·</span><span>100% Togo</span><span class="dot">·</span><span>Fruits locaux</span><span class="dot">·</span><span>Sans additifs</span><span class="dot">·</span><span>Lomé, Togo</span><span class="dot">·</span><span>Livraison disponible</span><span class="dot">·</span>
   </div>
 </div>
 
@@ -495,10 +527,10 @@
 
 <!-- PRODUCTS -->
 <section class="products" id="products">
-  <div class="sec-header">
+  <div class="sec-header reveal">
     <div>
       <p class="eyebrow" style="font-size:13px;font-weight:600;color:var(--text)">Ce que nous pressons</p>
-      <h2 class="sec-title" style="margin-bottom:0">Nos recettes.</h2>
+      <h2 class="sec-title" style="margin-bottom:0">Nos jus Heritage.</h2>
     </div>
     <a href="https://wa.me/22879467455?text=Bonjour%20Heritage%20Drink%2C%20quelles%20sont%20vos%20recettes%20du%20jour%20?" class="btn-ghost">Toutes les options →</a>
   </div>
@@ -510,7 +542,7 @@
   <div class="community-head reveal">
     <p class="eyebrow">Notre communauté</p>
     <h2 class="sec-title">Heritage en images.</h2>
-    <p class="sec-body">Des vraies personnes, de vraies bouteilles, de vrais moments. Chaque jour à Lomé, Heritage Drink accompagne vos matins, vos événements et vos moments de santé.</p>
+    <p class="sec-body">De la maison au bureau, des événements privés aux hôtels et restaurants — Heritage Drink s'invite partout où la santé a sa place. Partout à Lomé, nos jus frais accompagnent chaque moment de votre journée.</p>
   </div>
   <div class="community-gallery" id="communityGallery">
     <div class="community-slot big"><span class="emoji">📸</span><span>Photo communauté 1</span><small>(remplacer par vraie photo)</small></div>
@@ -528,7 +560,7 @@
 
 <!-- QUIZ -->
 <section class="quiz-section" id="quiz">
-  <div class="quiz-box">
+  <div class="quiz-box reveal">
     <p class="eyebrow">Personnalisation</p>
     <h2 class="sec-title">Quel jus est fait <em>pour vous ?</em></h2>
     <p class="quiz-sub">Répondez à 3 questions rapides. Nous vous recommandons les recettes Heritage les plus adaptées à votre objectif santé du moment.</p>
@@ -671,6 +703,32 @@
           <button onclick="activateTracker()" class="cure-tracker-toggle">📅 Activer le tracker de cure</button>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- PERSONNALISATION -->
+<section class="custom-juice" id="personnalisation">
+  <div class="custom-grid">
+    <div class="reveal-left">
+      <p class="eyebrow">Sur mesure</p>
+      <h2 class="sec-title">Votre jus,<br/><em>vos règles.</em></h2>
+      <p class="sec-body">Dites-nous vos fruits, vos légumes, vos goûts — nous le pressons pour vous. Ce que d'autres ne font pas, Heritage Drink le fait : chaque client crée sa propre recette.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px">
+        <div class="gift-feature"><span style="font-size:1.2rem">🍓</span><span class="txt">Choisissez vos fruits et légumes</span></div>
+        <div class="gift-feature"><span style="font-size:1.2rem">🎯</span><span class="txt">Indiquez vos objectifs santé</span></div>
+        <div class="gift-feature"><span style="font-size:1.2rem">🥤</span><span class="txt">Nous préparons votre jus unique</span></div>
+      </div>
+    </div>
+    <div class="gift-form reveal-right reveal-delay-2">
+      <div class="gift-form-title">🧃 Créer mon jus personnalisé</div>
+      <div class="form-field"><label>Vos fruits / légumes</label><textarea placeholder="Ex : mangue, gingembre, citron..." id="custom-ingredients"></textarea></div>
+      <div class="form-field"><label>Votre objectif</label>
+        <select id="custom-goal"><option value="">Choisir...</option><option>Énergie</option><option>Détox</option><option>Immunité</option><option>Poids</option><option>Autre</option></select>
+      </div>
+      <div class="form-field"><label>Vos contraintes alimentaires</label><textarea placeholder="Allergies, intolérances, préférences..." id="custom-constraints"></textarea></div>
+      <div class="form-field"><label>Votre WhatsApp</label><input type="tel" placeholder="+228 ..." id="custom-phone"/></div>
+      <button class="btn-gift" onclick="sendCustomJuice()">Envoyer ma demande →</button>
     </div>
   </div>
 </section>
@@ -848,6 +906,20 @@
     <h2 class="sec-title">Ce que nos clients<br/><em>disent vraiment.</em></h2>
   </div>
   <div class="testi-grid" id="testiGrid"></div>
+  <div class="testi-wa-grid">
+    <div class="testi-wa-card reveal-scale">
+      <img src="testi-wa-1.jpg" alt="Témoignage WhatsApp" onload="this.classList.add('loaded')" onerror="this.style.display='none'"/>
+      <div class="testi-wa-fallback">📱 Screenshot WhatsApp à ajouter</div>
+    </div>
+    <div class="testi-wa-card reveal-scale reveal-delay-1">
+      <img src="testi-wa-2.jpg" alt="Témoignage WhatsApp" onload="this.classList.add('loaded')" onerror="this.style.display='none'"/>
+      <div class="testi-wa-fallback">📱 Screenshot WhatsApp à ajouter</div>
+    </div>
+    <div class="testi-wa-card reveal-scale reveal-delay-2">
+      <img src="testi-wa-3.jpg" alt="Témoignage WhatsApp" onload="this.classList.add('loaded')" onerror="this.style.display='none'"/>
+      <div class="testi-wa-fallback">📱 Screenshot WhatsApp à ajouter</div>
+    </div>
+  </div>
 </section>
 
 <!-- B2B -->
@@ -895,8 +967,9 @@
   <div class="story-grid">
     <div class="reveal-left">
       <p class="eyebrow">Notre histoire</p>
-      <h2>Née à Lomé,<br/>pensée pour l'Afrique.</h2>
-      <p class="story-body">Depuis 2018, Heritage Drink presse les fruits et légumes du terroir togolais pour en faire des jus vivants, sans sucre ajouté ni artifice. Une aventure locale, portée par la conviction que la santé la plus authentique est celle qui vient de la terre qu'on connaît.</p>
+      <h2>Nés d'un constat.<br/>Portés par une mission.</h2>
+      <p class="story-body">Heritage Drink est né d'un double constat : des fruits et légumes locaux gaspillés faute de débouchés, et des consommateurs sans alternative aux boissons ultra-transformées bourrées de sucre.</p>
+      <p class="story-body">Depuis 2018, nous donnons une seconde vie à ces fruits — pressés chaque matin, sans sucre ajouté, sans conservateur chimique. Même notre jus de gingembre, même notre jus d'ail.</p>
       <p class="story-signature">"Boire Heritage, c'est choisir sa santé. Et choisir son pays."</p>
     </div>
     <div class="story-stats reveal-right reveal-delay-1">
@@ -911,7 +984,7 @@
 <footer>
   <div class="footer-grid">
     <div>
-      <div class="footer-brand"><img src="logo-heritage.png" alt="Heritage Drink" style="height:50px;width:auto;object-fit:contain;display:block;filter:brightness(0) invert(1)"/></div>
+      <div class="footer-brand"><img src="logo-heritage.png" alt="Heritage Drink" style="height:38px;width:auto;object-fit:contain;display:block;filter:brightness(0) invert(1)"/></div>
       <p class="footer-desc">Jus naturels pressés à Lomé. Fruits du terroir togolais, sans sucre ni additifs. Cures santé, abonnements et programme de fidélité.</p>
       <div class="footer-social">
         <a href="https://www.instagram.com/heritagedrink" id="socialInstagram" class="social-btn" target="_blank" rel="noopener">📸</a>
@@ -972,7 +1045,6 @@ const HD_DEFAULTS = {
   email: 'heritagedrink@gmail.com',
   instagram: 'https://www.instagram.com/heritagedrink',
   facebook: 'https://www.facebook.com/share/1Bt51b16pG/',
-  mapsLink: '',
   promo: { active: false, text: '', color: '#D4A833' },
   products: [
     { id:'cocktail', name:'Cocktail Heritage', img:'Cocktail_Heritage.png',
@@ -1046,8 +1118,7 @@ function getSettings() {
     hours: s.hours || HD_DEFAULTS.hours,
     email: s.email || HD_DEFAULTS.email,
     instagram: s.instagram || HD_DEFAULTS.instagram,
-    facebook: s.facebook || HD_DEFAULTS.facebook,
-    mapsLink: s.mapsLink || HD_DEFAULTS.mapsLink
+    facebook: s.facebook || HD_DEFAULTS.facebook
   };
 }
 function getPromo() { return hdGet('hd_promo', HD_DEFAULTS.promo); }
@@ -1126,14 +1197,13 @@ function renderProducts() {
     const delay = ['','reveal-delay-1','reveal-delay-2','reveal-delay-3'][i % 4];
     const badge = p.badge ? `<span class="p-badge">${escapeHtml(p.badge)}</span>` : '';
     const price = Number(p.price || 0).toLocaleString('fr-FR');
-    const qty = p.qty ? `<span class="p-qty">${p.qty} ${escapeHtml(p.unit || 'ml')}</span>` : '';
     const msg = `Bonjour Heritage Drink, je voudrais commander ${p.name}.`;
     return `<div class="product-card reveal-scale ${delay}">
       <div class="product-thumb"><img src="${escapeHtml(p.img)}" alt="${escapeHtml(p.name)}"/>${badge}</div>
       <div class="product-body">
         <h3 class="product-name">${escapeHtml(p.name)}</h3>
         <p class="product-desc">${escapeHtml(p.desc)}</p>
-        <div class="p-price">${price} <small>FCFA</small> ${qty}</div>
+        <div class="p-price">${price} <small>FCFA</small></div>
         <a href="${waLink(msg)}" class="btn-order">Commander</a>
       </div>
     </div>`;
@@ -1224,13 +1294,7 @@ function applyDynamicSettings() {
   const ig = document.getElementById('socialInstagram'); if (ig) ig.href = s.instagram;
   const igCta = document.getElementById('socialInstagramCta'); if (igCta) igCta.href = s.instagram;
   const fb = document.getElementById('socialFacebook'); if (fb) fb.href = s.facebook;
-  const addr = document.getElementById('footerAddress');
-  if (addr) {
-    const addressHtml = s.mapsLink
-      ? `<a href="${escapeHtml(s.mapsLink)}" target="_blank" rel="noopener" style="color:inherit">${escapeHtml(s.address)}</a>`
-      : escapeHtml(s.address);
-    addr.innerHTML = `${addressHtml}<br/>${escapeHtml(s.hours)}`;
-  }
+  const addr = document.getElementById('footerAddress'); if (addr) addr.innerHTML = `${escapeHtml(s.address)}<br/>${escapeHtml(s.hours)}`;
 }
 
 applyDynamicSettings();
@@ -1302,6 +1366,25 @@ if (!prefersReducedMotion) {
     });
   });
 }
+
+/* ── WELCOME OVERLAY (une fois par session) ── */
+(function () {
+  if (sessionStorage.getItem('hd_welcome_shown')) return;
+  const el = document.getElementById('welcomeOverlay');
+  if (!el) return;
+  setTimeout(() => el.classList.add('show'), 500);
+  function hide() {
+    el.classList.remove('show');
+    sessionStorage.setItem('hd_welcome_shown', '1');
+  }
+  const autoHideTimer = setTimeout(hide, 3000);
+  function hideOnInteract() {
+    clearTimeout(autoHideTimer);
+    hide();
+  }
+  document.addEventListener('click', hideOnInteract, { once: true });
+  document.addEventListener('scroll', hideOnInteract, { once: true, passive: true });
+})();
 
 document.getElementById('hamburger').addEventListener('click', function() {
   const links = document.getElementById('navLinks');
@@ -1579,6 +1662,22 @@ function sendGift() {
   const msg = `Bonjour Heritage Drink 👋\n\n*COMMANDE CADEAU — OFFRIR HERITAGE*\n\n🎁 Pour : ${to}\n🎉 Occasion : ${occasion || 'Non précisée'}\n📦 Pack choisi : ${packLabel}\n${msgPerso ? `💌 Message personnalisé : "${msgPerso}"\n` : ''}📞 Mon contact : ${phone || 'Non fourni'}\n\nMerci de me confirmer la disponibilité et les modalités de livraison.`;
   trackLoyaltyAction();
   trackAction('gift_sent');
+  window.open(waLink(msg), '_blank');
+}
+
+function sendCustomJuice() {
+  const ingredients = document.getElementById('custom-ingredients').value.trim();
+  const goal = document.getElementById('custom-goal').value;
+  const constraints = document.getElementById('custom-constraints').value.trim();
+  const phone = document.getElementById('custom-phone').value.trim();
+
+  if (!ingredients) {
+    alert('Merci de préciser au moins les fruits ou légumes souhaités.');
+    return;
+  }
+
+  const msg = `Bonjour Heritage Drink 👋\n\n*JUS PERSONNALISÉ*\n\n🍓 Fruits/légumes : ${ingredients}\n🎯 Objectif : ${goal || 'Non précisé'}\n⚠️ Contraintes : ${constraints || 'Aucune'}\n📞 Mon WhatsApp : ${phone || 'Non fourni'}`;
+  trackAction('custom_juice');
   window.open(waLink(msg), '_blank');
 }
 

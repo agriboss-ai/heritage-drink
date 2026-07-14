@@ -39,8 +39,18 @@
     section{padding:120px 6vw}
     @media(max-width:900px){ section{padding:80px 5vw} }
 
+    /* ── DECOR FRUITS & LEGUMES (illustrations line-art d'arriere-plan) ── */
+    .deco-svg{position:absolute;pointer-events:none;z-index:-1;opacity:.08;color:var(--green)}
+    @keyframes decoRotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    @keyframes decoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(15px)}}
+    .deco-rotate{animation:decoRotate 40s linear infinite}
+    .deco-float{animation:decoFloat 6s ease-in-out infinite}
+    @media(prefers-reduced-motion:reduce){.deco-rotate,.deco-float{animation:none}}
+    @media(max-width:700px){.deco-svg{display:none}}
+
     /* ── NAV ── */
-    nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:18px 6vw;background:var(--white);border-bottom:1px solid var(--border);transition:top .25s var(--ease)}
+    #welcomeBar{position:fixed;top:0;left:0;right:0;z-index:201;background:#2D5A3D;color:#FFFFFF;text-align:center;font-family:'Manrope',sans-serif;font-weight:500;font-size:13px;padding:10px 5vw}
+    nav{position:fixed;top:44px;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:18px 6vw;background:var(--white);border-bottom:1px solid var(--border);transition:top .25s var(--ease)}
     .promo-banner{display:none;position:fixed;top:0;left:0;right:0;z-index:210;text-align:center;padding:11px 5vw;font-size:.83rem;font-weight:700}
     .nav-logo{font-weight:800;font-size:1.25rem;color:var(--text)}
     .nav-logo span{color:var(--gold)}
@@ -53,7 +63,7 @@
     .hamburger span{display:block;width:24px;height:2px;background:var(--text);border-radius:2px}
 
     /* ── HERO ── */
-    .hero{min-height:92vh;background:var(--cream);display:grid;grid-template-columns:55% 45%;align-items:center;padding:150px 6vw 80px;gap:40px;position:relative}
+    .hero{min-height:92vh;background:var(--cream);display:grid;grid-template-columns:55% 45%;align-items:center;padding:150px 6vw 80px;gap:40px;position:relative;overflow:hidden}
     .hero-scroll-indicator{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);display:flex;color:var(--muted);opacity:.6;animation:bounceArrow 2s ease-in-out infinite;transition:opacity .2s}
     .hero-scroll-indicator:hover{opacity:1}
     @keyframes bounceArrow{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
@@ -78,8 +88,8 @@
     .stat-num span{color:var(--muted)}
     .stat-label{display:none}
     .hero-visual{display:flex;align-items:center;justify-content:center}
-    .hero-circle{width:min(420px,90%);aspect-ratio:1;border-radius:50%;background:#F0EBE0;display:flex;align-items:center;justify-content:center;position:relative}
-    .hero-circle img{width:90%;height:90%;object-fit:contain}
+    .hero-circle{width:min(420px,90%);aspect-ratio:1;border-radius:50%;background:#F5F0E8;display:flex;align-items:center;justify-content:center;position:relative}
+    .hero-circle img{width:92%;height:92%;object-fit:contain}
     .hero-badge-float{position:absolute;bottom:8%;left:6%;background:var(--gold);color:var(--white);font-size:.66rem;font-weight:700;letter-spacing:.05em;padding:6px 13px;border-radius:999px;text-transform:uppercase}
 
     /* ── MARQUEE ── */
@@ -127,7 +137,7 @@
     .btn-start-quiz:hover{transform:translateY(-2px);opacity:.92}
 
     /* ── PRODUCTS ── */
-    .products{background:var(--cream)}
+    .products{background:var(--cream);position:relative;overflow:hidden}
     .sec-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:44px;flex-wrap:wrap;gap:14px}
     .products-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
     .product-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:transform .3s var(--ease),box-shadow .3s var(--ease);display:flex;flex-direction:column}
@@ -213,7 +223,7 @@
     .cure-tracker-toggle:hover{color:var(--text)}
 
     /* ── SUBSCRIPTION ── */
-    .subscription{background:var(--white)}
+    .subscription{background:var(--white);position:relative;overflow:hidden}
     .sub-header{max-width:560px;margin-bottom:52px}
     .sub-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;align-items:start}
     .sub-card{background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:32px 26px;position:relative;transition:transform .25s,box-shadow .25s}
@@ -339,7 +349,7 @@
     @media(max-width:900px){.testi-wa-grid{grid-template-columns:1fr}}
 
     /* ── FAQ ── */
-    .faq{background:var(--white)}
+    .faq{background:var(--white);position:relative;overflow:hidden}
     .faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:44px}
     .faq-item{border:1px solid var(--border);border-radius:12px;overflow:hidden}
     .faq-q{width:100%;background:none;border:none;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:inherit;font-size:.92rem;font-weight:600;color:var(--text);cursor:pointer;text-align:left;transition:background .2s}
@@ -350,7 +360,7 @@
     .faq-item.open .faq-a{max-height:300px;padding:0 20px 18px}
 
     /* ── NOTRE HISTOIRE ── */
-    .story{background:var(--green);color:var(--white)}
+    .story{background:var(--green);color:var(--white);position:relative;overflow:hidden}
     .story-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:60px;align-items:center}
     .story .eyebrow{color:rgba(255,255,255,.55)}
     .story h2{font-size:clamp(1.9rem,3.4vw,44px);font-weight:700;letter-spacing:-1px;line-height:1.2;margin-bottom:22px}
@@ -361,7 +371,7 @@
     .story-stat-label{font-size:.78rem;color:rgba(255,255,255,.55);letter-spacing:.05em;text-transform:uppercase;margin-top:4px}
 
     /* ── FOOTER ── */
-    footer{background:#1A1A1A;padding:64px 6vw 34px}
+    footer{background:#1A1A1A;padding:64px 6vw 34px;position:relative;overflow:hidden}
     .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:48px}
     .footer-brand{font-weight:800;font-size:1.4rem;color:var(--white);margin-bottom:12px}
     .footer-brand span{color:var(--gold)}
@@ -457,6 +467,8 @@
 </div>
 
 <!-- NAV -->
+<div id="welcomeBar">🌿 Bienvenue chez Heritage Drink — Où santé et délices se rencontrent</div>
+
 <nav id="mainNav">
   <a href="#" class="nav-logo"><img src="logo-heritage.png" alt="Heritage Drink" style="height:44px;width:auto;object-fit:contain;display:block"/></a>
   <ul class="nav-links" id="navLinks">
@@ -473,10 +485,18 @@
 
 <!-- HERO -->
 <section class="hero">
+  <svg class="deco-svg deco-rotate" style="top:6%;right:4%;width:180px;height:180px" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="50" cy="50" r="42" stroke-width="2"/>
+    <g stroke-width="1.2"><line x1="50" y1="50" x2="50" y2="8"/><line x1="50" y1="50" x2="83" y2="27"/><line x1="50" y1="50" x2="83" y2="73"/><line x1="50" y1="50" x2="50" y2="92"/><line x1="50" y1="50" x2="17" y2="73"/><line x1="50" y1="50" x2="17" y2="27"/></g>
+  </svg>
+  <svg class="deco-svg deco-float" style="bottom:8%;left:3%;width:130px;height:130px" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M50 15c22 8 34 28 30 50-22 4-42-8-50-30-4-10-4-16 20-20Z"/>
+    <path d="M50 20c6 18 10 32 26 42" stroke-width="1.2"/>
+  </svg>
   <div>
     <p class="hero-label">Lomé, Togo · Depuis 2018</p>
     <h1>Votre santé, fraîchement embouteillée.</h1>
-    <p class="hero-desc">Fruits et légumes locaux, transformés chaque matin en jus vivants. Zéro sucre ajouté, zéro chimie. Cures santé, abonnements, programme de fidélité.</p>
+    <p class="hero-desc">Fruits et légumes locaux, transformés chaque matin en jus vivants. Zéro sucre ajouté, zéro conservateur chimique. Cures santé, abonnements, programme de fidélité.</p>
     <div class="hero-actions">
       <a href="https://wa.me/22879467455?text=Bonjour%20Heritage%20Drink%2C%20je%20souhaite%20commander%20un%20jus%20naturel.%20Merci%20de%20me%20donner%20les%20options%20du%20jour%20!" class="btn-primary">Commander sur WhatsApp →</a>
       <a href="#quiz" class="btn-ghost">Quel jus pour moi ?</a>
@@ -510,23 +530,32 @@
     <div class="promesse-item reveal">
       <div class="picon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></div>
       <h3>Fruits locaux</h3>
-      <p>100% fruits et légumes du terroir togolais, sélectionnés à maturité.</p>
+      <p>100% fruits et légumes cueillis à maturité, obtenus directement de nos agriculteurs locaux.</p>
     </div>
     <div class="promesse-item reveal reveal-delay-1">
       <div class="picon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5s6 6.5 6 11a6 6 0 1 1-12 0c0-4.5 6-11 6-11Z"/></svg></div>
       <h3>Zéro sucre ajouté</h3>
-      <p>Uniquement la douceur naturelle des fruits. Aucun additif, aucun conservateur.</p>
+      <p>Uniquement la douceur naturelle des fruits. Aucun sucre, aucun conservateur ajouté.</p>
     </div>
     <div class="promesse-item reveal reveal-delay-2">
       <div class="picon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
-      <h3>Pressé ce matin</h3>
-      <p>Chaque bouteille est préparée le jour même, jamais à l'avance.</p>
+      <h3>Pressé chaque matin</h3>
+      <p>Pour garantir la fraîcheur des jus Heritage, nous pressons chaque bouteille le jour même.</p>
     </div>
   </div>
 </section>
 
 <!-- PRODUCTS -->
 <section class="products" id="products">
+  <svg class="deco-svg deco-float" style="top:10%;left:4%;width:140px;height:140px" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <ellipse cx="50" cy="55" rx="34" ry="26"/>
+    <path d="M50 29c-6-10-18-14-18-14s2 12 10 18" stroke-width="1.5"/>
+  </svg>
+  <svg class="deco-svg deco-rotate" style="bottom:6%;right:5%;width:200px;height:200px" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 78 A45 45 0 0 1 88 78 Z"/>
+    <path d="M20 78 A37 37 0 0 1 80 78" stroke-width="1.2"/>
+    <circle cx="42" cy="60" r="1.6" fill="currentColor" stroke="none"/><circle cx="58" cy="60" r="1.6" fill="currentColor" stroke="none"/><circle cx="50" cy="68" r="1.6" fill="currentColor" stroke="none"/>
+  </svg>
   <div class="sec-header reveal">
     <div>
       <p class="eyebrow" style="font-size:13px;font-weight:600;color:var(--text)">Ce que nous pressons</p>
@@ -735,6 +764,14 @@
 
 <!-- SUBSCRIPTION -->
 <section class="subscription" id="subscription">
+  <svg class="deco-svg deco-rotate" style="top:8%;right:5%;width:150px;height:150px" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M50 40c16 0 26 14 22 32-4 16-18 22-22 22s-18-6-22-22c-4-18 6-32 22-32Z"/>
+    <path d="M50 40c-2-14 2-26 2-26M50 40c6-12 16-18 16-18M50 40c-8-10-18-14-18-14" stroke-width="1.3"/>
+  </svg>
+  <svg class="deco-svg deco-float" style="bottom:6%;left:4%;width:120px;height:120px" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M50 10c18 20 22 50 8 78-14-6-24-30-18-56 3-12 6-18 10-22Z"/>
+    <line x1="50" y1="16" x2="52" y2="82" stroke-width="1.2"/>
+  </svg>
   <div class="sub-header reveal">
     <p class="eyebrow">Abonnements</p>
     <h2 class="sec-title">Votre santé,<br/><em>livrée chaque semaine.</em></h2>
@@ -955,6 +992,10 @@
 
 <!-- FAQ -->
 <section class="faq" id="faq">
+  <svg class="deco-svg deco-float" style="top:8%;right:5%;width:130px;height:130px" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M50 15c22 8 34 28 30 50-22 4-42-8-50-30-4-10-4-16 20-20Z"/>
+    <path d="M50 20c6 18 10 32 26 42" stroke-width="1.2"/>
+  </svg>
   <div style="max-width:560px" class="reveal">
     <p class="eyebrow">Questions fréquentes</p>
     <h2 class="sec-title">Ce que vous voulez<br/><em>savoir.</em></h2>
@@ -964,12 +1005,20 @@
 
 <!-- NOTRE HISTOIRE -->
 <section class="story" id="histoire">
+  <svg class="deco-svg deco-float" style="top:12%;left:3%;width:170px;height:170px;color:#FFFFFF" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M30 25c-14 10-20 30-10 50 8 16 26 20 38 10 14-12 16-34 4-50-8-10-20-14-32-10Z"/>
+  </svg>
+  <svg class="deco-svg deco-rotate" style="bottom:10%;right:4%;width:160px;height:160px;color:#FFFFFF" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="50" cy="55" r="36"/>
+    <path d="M50 19c-6 8-6 14 0 20M30 30c6 4 10 10 10 18M70 30c-6 4-10 10-10 18" stroke-width="1.2"/>
+  </svg>
   <div class="story-grid">
     <div class="reveal-left">
       <p class="eyebrow">Notre histoire</p>
       <h2>Nés d'un constat.<br/>Portés par une mission.</h2>
-      <p class="story-body">Heritage Drink est né d'un double constat : des fruits et légumes locaux gaspillés faute de débouchés, et des consommateurs sans alternative aux boissons ultra-transformées bourrées de sucre.</p>
-      <p class="story-body">Depuis 2018, nous donnons une seconde vie à ces fruits — pressés chaque matin, sans sucre ajouté, sans conservateur chimique. Même notre jus de gingembre, même notre jus d'ail.</p>
+      <p class="story-body">Heritage Drink est né d'un double constat : des agriculteurs togolais qui voient leurs récoltes se gâter faute de débouchés, et des consommateurs sans alternative saine aux boissons ultra-transformées bourrées de sucre.</p>
+      <p class="story-body">Depuis 2018, nous faisons le lien. Chaque bouteille Heritage valorise le travail d'un producteur local, réduit le gaspillage alimentaire et offre une nutrition honnête à nos clients.</p>
+      <p class="story-body">Sans sucre ajouté. Sans conservateur chimique. Même notre jus de gingembre, même notre jus d'ail.</p>
       <p class="story-signature">"Boire Heritage, c'est choisir sa santé. Et choisir son pays."</p>
     </div>
     <div class="story-stats reveal-right reveal-delay-1">
@@ -982,6 +1031,10 @@
 
 <!-- FOOTER -->
 <footer>
+  <svg class="deco-svg" style="bottom:4%;left:2%;width:120px;height:120px;opacity:.06" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="50" cy="50" r="42" stroke-width="2"/>
+    <g stroke-width="1.2"><line x1="50" y1="50" x2="50" y2="8"/><line x1="50" y1="50" x2="83" y2="27"/><line x1="50" y1="50" x2="83" y2="73"/><line x1="50" y1="50" x2="50" y2="92"/><line x1="50" y1="50" x2="17" y2="73"/><line x1="50" y1="50" x2="17" y2="27"/></g>
+  </svg>
   <div class="footer-grid">
     <div>
       <div class="footer-brand"><img src="logo-heritage.png" alt="Heritage Drink" style="height:38px;width:auto;object-fit:contain;display:block;filter:brightness(0) invert(1)"/></div>
@@ -1060,19 +1113,19 @@ const HD_DEFAULTS = {
       price:1500, desc:'Fruit rare du terroir togolais. Goût unique, défenses renforcées.',
       benefits:['Immunité','Fibres','Fruit rare'], badge:'💎 Rare', active:true },
     { id:'pasteque', name:'Pastèque Pure', img:'Pastèque_Pure.png',
-      price:1000, desc:'100% pastèque. Naturellement hydratant, riche en lycopène.',
+      price:800, desc:'100% pastèque. Naturellement hydratant, riche en lycopène.',
       benefits:['Hydratation max','Antioxydant','Zéro additif'], badge:'', active:true },
     { id:'orange', name:'Orange Heritage', img:'Orange_Heritage.png',
-      price:1000, desc:'100% orange pressée. Vitamine C maximale.',
+      price:800, desc:'100% orange pressée. Vitamine C maximale.',
       benefits:['Vitamine C','Immunité','100% naturel'], badge:'', active:true },
     { id:'detox', name:'Power Detox', img:'Power_Detox.png',
-      price:1000, desc:'Betterave, citron, concombre, persil. Nettoyage en profondeur.',
+      price:3000, desc:'Betterave, citron, concombre, persil. Nettoyage en profondeur.',
       benefits:['Détox profonde','Légumes frais','Régénérant'], badge:'🌱 Détox', active:true },
     { id:'coco', name:'Eau de Coco', img:'Eau_de_coco.png',
-      price:1000, desc:'Hydratation naturelle riche en électrolytes.',
+      price:600, desc:'Hydratation naturelle riche en électrolytes.',
       benefits:['Électrolytes','Post-sport','Légère'], badge:'', active:true },
     { id:'ail', name:"Jus d'Ail Tonus", img:'Jus_d_ail_Tonus.png',
-      price:1000, desc:"Ail pressé + citron. Remède ancestral togolais.",
+      price:3000, desc:"Ail pressé + citron. Remède ancestral togolais.",
       benefits:['Antibactérien','Cardiovasculaire','Tonus'], badge:'💪 Tonus', active:true }
   ],
   testimonials: [
@@ -1192,7 +1245,13 @@ function waLink(msg){ return `https://wa.me/${WA}?text=${encodeURIComponent(msg)
 function renderProducts() {
   const grid = document.getElementById('productsGrid');
   if (!grid) return;
-  const products = getProducts().filter(p => p.active !== false);
+  let products;
+  try {
+    products = getProducts().filter(p => p.active !== false);
+    if (!products || !products.length) products = HD_DEFAULTS.products.filter(p => p.active !== false);
+  } catch (e) {
+    products = HD_DEFAULTS.products.filter(p => p.active !== false);
+  }
   const cards = products.map((p, i) => {
     const delay = ['','reveal-delay-1','reveal-delay-2','reveal-delay-3'][i % 4];
     const badge = p.badge ? `<span class="p-badge">${escapeHtml(p.badge)}</span>` : '';
@@ -1277,7 +1336,9 @@ function renderPromo() {
   requestAnimationFrame(() => {
     const navEl = document.getElementById('mainNav');
     const heroSection = document.querySelector('.hero');
-    const h = active ? el.offsetHeight : 0;
+    const welcomeBar = document.getElementById('welcomeBar');
+    const welcomeH = welcomeBar ? welcomeBar.offsetHeight : 0;
+    const h = (active ? el.offsetHeight : 0) + welcomeH;
     if (navEl) navEl.style.top = h + 'px';
     if (heroSection) heroSection.style.paddingTop = h ? `calc(120px + ${h}px)` : '';
   });
@@ -1326,6 +1387,8 @@ onScrollFrame();
 
 /* ── COMPTEURS ANIMES (stats hero) ── */
 function animateCounter(el) {
+  if (el.dataset.animated) return;
+  el.dataset.animated = '1';
   const target = parseInt(el.dataset.target, 10) || 0;
   const valEl = el.querySelector('.stat-num-val');
   if (!valEl) return;
@@ -1344,6 +1407,14 @@ const statObserver = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) { animateCounter(e.target); statObserver.unobserve(e.target); } });
 }, { threshold: 0.4 });
 document.querySelectorAll('.stat-num[data-target]').forEach(el => statObserver.observe(el));
+
+// Fallback : force le declenchement si l'IntersectionObserver ne s'est pas declenche (ex. stats deja dans le viewport au chargement)
+setTimeout(() => {
+  document.querySelectorAll('.stat-num[data-target]').forEach(el => {
+    animateCounter(el);
+    statObserver.unobserve(el);
+  });
+}, 800);
 
 const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); } });

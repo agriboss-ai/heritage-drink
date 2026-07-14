@@ -88,8 +88,8 @@
     .stat-num span{color:var(--muted)}
     .stat-label{display:none}
     .hero-visual{display:flex;align-items:center;justify-content:center}
-    .hero-circle{width:min(420px,90%);aspect-ratio:1;border-radius:50%;background:#F5F0E8;display:flex;align-items:center;justify-content:center;position:relative}
-    .hero-circle img{width:92%;height:92%;object-fit:contain}
+    .hero-circle{width:min(420px,90%);aspect-ratio:1;border-radius:50%;background:#F5F0E8;overflow:hidden;isolation:isolate;display:flex;align-items:center;justify-content:center;position:relative}
+    .hero-circle img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;filter:contrast(1.05)}
     .hero-badge-float{position:absolute;bottom:8%;left:6%;background:var(--gold);color:var(--white);font-size:.66rem;font-weight:700;letter-spacing:.05em;padding:6px 13px;border-radius:999px;text-transform:uppercase}
 
     /* ── MARQUEE ── */
@@ -507,7 +507,7 @@
   </div>
   <div class="hero-visual">
     <div class="hero-circle">
-      <img src="Super_Dotè_Heritage.png" alt="Super Dotè Heritage" style="mix-blend-mode:multiply;background:transparent"/>
+      <img src="Super_Dotè_Heritage.png" alt="Super Dotè Heritage" style="mix-blend-mode:multiply;background:transparent;width:100%;height:100%;object-fit:contain;filter:contrast(1.05)"/>
       <span class="hero-badge-float">⭐ Le plus populaire</span>
     </div>
   </div>

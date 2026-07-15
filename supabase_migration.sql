@@ -88,9 +88,9 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO hd_products (id, name, img, price, description, benefits, badge, active, sort_order) VALUES
 ('cocktail',  'Cocktail Heritage',   'Cocktail_Heritage.png',   1000, 'Assemblage quotidien de fruits frais africains pressés à froid.', '["Énergie matinale","Fruits locaux","Zéro sucre"]', '⭐ Signature', true, 1),
 ('smoothie',  'Smoothie Heritage',   'Smoothie_Heritqge.png',   1000, 'Mangue, pomme, ananas, banane. Un repas dans un verre.', '["Coupe-faim","Riche en fibres","Énergie durable"]', '', true, 2),
-('superdote', 'Super Dotè',          'Super_Dotè_Heritage.png', 1000, 'Gingembre + curcuma. Le bouclier quotidien de nos clients.', '["Anti-inflammatoire","Immunité","Digestion"]', '🔥 Populaire', true, 3),
+('superdote', 'Super Dotè',          'Super_Dote_Heritage.png', 1000, 'Gingembre + curcuma. Le bouclier quotidien de nos clients.', '["Anti-inflammatoire","Immunité","Digestion"]', '🔥 Populaire', true, 3),
 ('corossol',  'Corossol Heritage',   'Corossol_Heritqge.png',   1000, 'Fruit rare du terroir togolais. Goût unique, défenses renforcées.', '["Immunité","Fibres","Fruit rare"]', '💎 Rare', true, 4),
-('pasteque',  'Pastèque Pure',       'Pastèque_Pure.png',       800,  '100% pastèque. Naturellement hydratant, riche en lycopène.', '["Hydratation max","Antioxydant","Zéro additif"]', '', true, 5),
+('pasteque',  'Pastèque Pure',       'Pasteque_Pure.png',       800,  '100% pastèque. Naturellement hydratant, riche en lycopène.', '["Hydratation max","Antioxydant","Zéro additif"]', '', true, 5),
 ('orange',    'Orange Heritage',     'Orange_Heritage.png',     800,  '100% orange pressée. Vitamine C maximale.', '["Vitamine C","Immunité","100% naturel"]', '', true, 6),
 ('detox',     'Power Detox',         'Power_Detox.png',         3000, 'Betterave, citron, concombre, persil. Nettoyage en profondeur.', '["Détox profonde","Légumes frais","Régénérant"]', '🌱 Détox', true, 7),
 ('coco',      'Eau de Coco',         'Eau_de_coco.png',         600,  'Hydratation naturelle riche en électrolytes.', '["Électrolytes","Post-sport","Légère"]', '', true, 8),

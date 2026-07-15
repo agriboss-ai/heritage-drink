@@ -1094,6 +1094,7 @@ const HD_DEFAULTS = {
   instagram: 'https://www.instagram.com/heritagedrink',
   facebook: 'https://www.facebook.com/share/1Bt51b16pG/',
   promo: { active: false, text: '', color: '#D4A833' },
+  welcome: { active: true, text: '🌿 Bienvenue chez Heritage Drink — Où santé et délices se rencontrent' },
   products: [
     { id:'cocktail', name:'Cocktail Heritage', img:'Cocktail_Heritage.png',
       price:1000, desc:'Assemblage quotidien de fruits frais africains pressés à froid.',
@@ -1105,7 +1106,7 @@ const HD_DEFAULTS = {
       price:1000, desc:'Gingembre + curcuma. Le bouclier quotidien de nos clients.',
       benefits:['Anti-inflammatoire','Immunité','Digestion'], badge:'🔥 Populaire', active:true },
     { id:'corossol', name:'Corossol Heritage', img:'Corossol_Heritqge.png',
-      price:1500, desc:'Fruit rare du terroir togolais. Goût unique, défenses renforcées.',
+      price:1000, desc:'Fruit rare du terroir togolais. Goût unique, défenses renforcées.',
       benefits:['Immunité','Fibres','Fruit rare'], badge:'💎 Rare', active:true },
     { id:'pasteque', name:'Pastèque Pure', img:'Pastèque_Pure.png',
       price:800, desc:'100% pastèque. Naturellement hydratant, riche en lycopène.',
@@ -1154,12 +1155,34 @@ const HD_DEFAULTS = {
 /* =====================================================
    LECTURE LOCALSTORAGE (avec fallback HD_DEFAULTS)
 ===================================================== */
+/* =====================================================
+   SUPABASE — donnees dynamiques (fallback HD_DEFAULTS si echec/offline)
+===================================================== */
+const SB_URL = 'https://xwkcpldsainxkwlvkndn.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh3a2NwbGRzYWlueGt3bHZrbmRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwNzIxNzIsImV4cCI6MjA5OTY0ODE3Mn0.Qa2NZzj4pfj3xmHHwe8l6G29AZduDVATmWfmd1GRECU';
+
+async function sbFetch(path) {
+  const res = await fetch(SB_URL + '/rest/v1/' + path, {
+    headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY }
+  });
+  if (!res.ok) throw new Error('Supabase ' + path + ' -> ' + res.status);
+  return res.json();
+}
+function safeParseArray(v) {
+  if (Array.isArray(v)) return v;
+  try { const p = JSON.parse(v); return Array.isArray(p) ? p : []; } catch(e) { return []; }
+}
+
+// Cache memoire rempli par les fetch Supabase ; reste a null tant que non charge (-> fallback HD_DEFAULTS)
+const SB_CACHE = { settings: null, products: null, testimonials: null, faq: null, gallery: null };
+
+// hdGet conserve pour hd_stats / hd_stats_log (tracking local, hors perimetre migration)
 function hdGet(key, fallback) {
   try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
   catch(e) { return fallback; }
 }
 function getSettings() {
-  const s = hdGet('hd_settings', {});
+  const s = SB_CACHE.settings || {};
   return {
     whatsapp: s.whatsapp || HD_DEFAULTS.whatsapp,
     address: s.address || HD_DEFAULTS.address,
@@ -1169,11 +1192,28 @@ function getSettings() {
     facebook: s.facebook || HD_DEFAULTS.facebook
   };
 }
-function getPromo() { return hdGet('hd_promo', HD_DEFAULTS.promo); }
-function getProducts() { const p = hdGet('hd_products', null); return (Array.isArray(p) && p.length) ? p : HD_DEFAULTS.products; }
-function getTestimonials() { const t = hdGet('hd_testimonials', null); return (Array.isArray(t) && t.length) ? t : HD_DEFAULTS.testimonials; }
-function getFaqList() { const f = hdGet('hd_faq', null); return (Array.isArray(f) && f.length) ? f : HD_DEFAULTS.faq; }
-function getGallery() { const g = hdGet('hd_gallery', null); return Array.isArray(g) ? g.filter(p => p && p.url) : []; }
+function getPromo() {
+  const s = SB_CACHE.settings;
+  if (!s) return HD_DEFAULTS.promo;
+  return { active: !!s.promo_active, text: s.promo_text || '', color: s.promo_color || HD_DEFAULTS.promo.color };
+}
+function getWelcome() {
+  const s = SB_CACHE.settings;
+  if (!s) return HD_DEFAULTS.welcome;
+  return { active: s.welcome_active !== false, text: s.welcome_text || HD_DEFAULTS.welcome.text };
+}
+function getProducts() { const p = SB_CACHE.products; return (Array.isArray(p) && p.length) ? p : HD_DEFAULTS.products; }
+function getTestimonials() { const t = SB_CACHE.testimonials; return (Array.isArray(t) && t.length) ? t : HD_DEFAULTS.testimonials; }
+function getFaqList() { const f = SB_CACHE.faq; return (Array.isArray(f) && f.length) ? f : HD_DEFAULTS.faq; }
+function getGallery() { const g = SB_CACHE.gallery; return Array.isArray(g) ? g.filter(p => p && p.url) : []; }
+
+function applyWelcomeBar() {
+  const w = getWelcome();
+  const el = document.getElementById('welcomeBar');
+  if (!el) return;
+  if (w.active) { el.textContent = w.text; el.style.display = ''; }
+  else { el.style.display = 'none'; }
+}
 
 function escapeHtml(str) {
   return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1212,7 +1252,7 @@ const PRODUCT_TAGS = {
 function buildJuices() {
   return getProducts().filter(p => p.active !== false).map(p => ({ name:p.name, img:p.img, price:p.price, tags: PRODUCT_TAGS[p.id] || [] }));
 }
-const JUICES = buildJuices();
+let JUICES = buildJuices();
 
 const GOAL_INFO = {
   energie:  { title:'⚡ Votre profil : Énergie & Vitalité',     desc:"Vous avez besoin d'un coup de boost durable. Ces jus sont riches en fruits naturellement énergisants — parfaits pour démarrer ou tenir votre journée sans coup de fatigue." },
@@ -1353,12 +1393,71 @@ function applyDynamicSettings() {
   const addr = document.getElementById('footerAddress'); if (addr) addr.innerHTML = `${escapeHtml(s.address)}<br/>${escapeHtml(s.hours)}`;
 }
 
+// Rendu immediat avec HD_DEFAULTS (site fonctionnel meme hors-ligne / avant reponse Supabase)
 applyDynamicSettings();
+applyWelcomeBar();
 renderPromo();
 renderProducts();
 renderTestimonials();
 renderFaqList();
 renderGallery();
+
+/* =====================================================
+   CHARGEMENT SUPABASE — ordre : settings -> produits -> temoignages -> faq -> galerie
+   Chaque etape retombe silencieusement sur HD_DEFAULTS en cas d'echec.
+===================================================== */
+async function loadSettings() {
+  try {
+    const rows = await sbFetch('hd_settings?id=eq.1&select=*&limit=1');
+    if (rows && rows[0]) SB_CACHE.settings = rows[0];
+  } catch(e) {}
+  applyDynamicSettings();
+  applyWelcomeBar();
+  renderPromo();
+}
+async function loadProductsFromSupabase() {
+  try {
+    const rows = await sbFetch('hd_products?select=*&order=sort_order.asc');
+    if (Array.isArray(rows) && rows.length) {
+      SB_CACHE.products = rows.map(r => ({
+        id: r.id, name: r.name, img: r.img, price: r.price,
+        desc: r.description, badge: r.badge || '', active: r.active !== false,
+        benefits: safeParseArray(r.benefits)
+      }));
+    }
+  } catch(e) {}
+  JUICES = buildJuices();
+  renderProducts();
+}
+async function loadTestimonialsFromSupabase() {
+  try {
+    const rows = await sbFetch('hd_testimonials?select=*&order=sort_order.asc');
+    if (Array.isArray(rows) && rows.length) SB_CACHE.testimonials = rows;
+  } catch(e) {}
+  renderTestimonials();
+}
+async function loadFaqFromSupabase() {
+  try {
+    const rows = await sbFetch('hd_faq?select=*&order=sort_order.asc');
+    if (Array.isArray(rows) && rows.length) SB_CACHE.faq = rows.map(r => ({ q: r.question, a: r.answer }));
+  } catch(e) {}
+  renderFaqList();
+}
+async function loadGalleryFromSupabase() {
+  try {
+    const rows = await sbFetch('hd_gallery?select=*&order=sort_order.asc');
+    if (Array.isArray(rows)) SB_CACHE.gallery = rows.map(r => ({ url: r.img_url, caption: r.caption }));
+  } catch(e) {}
+  renderGallery();
+}
+async function initSupabaseData() {
+  await loadSettings();
+  await loadProductsFromSupabase();
+  await loadTestimonialsFromSupabase();
+  await loadFaqFromSupabase();
+  await loadGalleryFromSupabase();
+}
+initSupabaseData();
 
 /* =====================================================
    NAV + SCROLL REVEAL

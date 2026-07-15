@@ -501,7 +501,7 @@ const STATS_LABELS = {
 const STATS_ORDER = ['order_click','quiz_complete','cure_created','gift_sent','b2b_sent'];
 
 /* =====================================================
-   LOCALSTORAGE — helpers
+   LOCALSTORAGE — helpers (conserve pour auth / stats, hors perimetre migration)
 ===================================================== */
 function hdGet(key, fallback) {
   try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
@@ -509,8 +509,35 @@ function hdGet(key, fallback) {
 }
 function hdSet(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
 
+/* =====================================================
+   SUPABASE — donnees dynamiques (produits, temoignages, faq, galerie, parametres)
+===================================================== */
+const SB_URL = 'https://xwkcpldsainxkwlvkndn.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh3a2NwbGRzYWlueGt3bHZrbmRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwNzIxNzIsImV4cCI6MjA5OTY0ODE3Mn0.Qa2NZzj4pfj3xmHHwe8l6G29AZduDVATmWfmd1GRECU';
+
+async function sbFetch(path, opts) {
+  opts = opts || {};
+  const headers = Object.assign(
+    { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' },
+    opts.headers || {}
+  );
+  const res = await fetch(SB_URL + '/rest/v1/' + path, Object.assign({}, opts, { headers }));
+  return res;
+}
+async function sbGetJson(path) {
+  const res = await sbFetch(path);
+  if (!res.ok) throw new Error('Supabase ' + path + ' -> ' + res.status);
+  return res.json();
+}
+function safeParseArray(v) {
+  if (Array.isArray(v)) return v;
+  try { const p = JSON.parse(v); return Array.isArray(p) ? p : []; } catch(e) { return []; }
+}
+
+const SB_CACHE = { settings: null, products: null, testimonials: null, faq: null, gallery: null };
+
 function getSettings() {
-  const s = hdGet('hd_settings', {});
+  const s = SB_CACHE.settings || {};
   return {
     whatsapp: s.whatsapp || HD_DEFAULTS.whatsapp,
     address: s.address || HD_DEFAULTS.address,
@@ -521,12 +548,101 @@ function getSettings() {
     mapsLink: s.mapsLink || HD_DEFAULTS.mapsLink
   };
 }
-function getPromo() { return hdGet('hd_promo', HD_DEFAULTS.promo); }
-function getProducts() { const p = hdGet('hd_products', null); return (Array.isArray(p) && p.length) ? p : JSON.parse(JSON.stringify(HD_DEFAULTS.products)); }
-function getTestimonials() { const t = hdGet('hd_testimonials', null); return (Array.isArray(t) && t.length) ? t : JSON.parse(JSON.stringify(HD_DEFAULTS.testimonials)); }
-function getFaqList() { const f = hdGet('hd_faq', null); return (Array.isArray(f) && f.length) ? f : JSON.parse(JSON.stringify(HD_DEFAULTS.faq)); }
+function getPromo() {
+  const s = SB_CACHE.settings;
+  if (!s) return HD_DEFAULTS.promo;
+  return { active: !!s.promo_active, text: s.promo_text || '', color: s.promo_color || HD_DEFAULTS.promo.color };
+}
+function getWelcome() {
+  const s = SB_CACHE.settings;
+  if (!s) return HD_DEFAULTS.welcome;
+  return { active: s.welcome_active !== false, text: s.welcome_text || HD_DEFAULTS.welcome.text };
+}
+function getProducts() { const p = SB_CACHE.products; return (Array.isArray(p) && p.length) ? p : JSON.parse(JSON.stringify(HD_DEFAULTS.products)); }
+function getTestimonials() { const t = SB_CACHE.testimonials; return (Array.isArray(t) && t.length) ? t : JSON.parse(JSON.stringify(HD_DEFAULTS.testimonials)); }
+function getFaqList() { const f = SB_CACHE.faq; return (Array.isArray(f) && f.length) ? f : JSON.parse(JSON.stringify(HD_DEFAULTS.faq)); }
+function getGallery() { const g = SB_CACHE.gallery; return Array.isArray(g) ? g : []; }
 function getStats() { return hdGet('hd_stats', {}); }
 function getStatsLog() { return hdGet('hd_stats_log', []); }
+
+// ── Resynchronisation complete (delete-all puis reinsert) apres chaque mutation ──
+// Listes admin courtes (<15 items) : simple, fiable, coherent avec l'ordre affiche.
+async function syncProducts(list) {
+  try {
+    await sbFetch('hd_products?id=not.is.null', { method: 'DELETE' });
+    const rows = list.map((p, i) => ({
+      id: p.id, name: p.name, img: p.img, price: Number(p.price)||0,
+      description: p.desc || '', benefits: JSON.stringify(p.benefits || []),
+      badge: p.badge || '', active: p.active !== false, sort_order: i
+    }));
+    if (rows.length) await sbFetch('hd_products', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify(rows) });
+    SB_CACHE.products = list;
+  } catch(e) { showToast('Erreur de synchronisation Supabase (produits)'); }
+}
+async function syncTestimonials(list) {
+  try {
+    await sbFetch('hd_testimonials?id=not.is.null', { method: 'DELETE' });
+    const rows = list.map((t, i) => ({
+      name: t.name || '', role: t.role || '', product: t.product || '',
+      text: t.text || '', stars: Number(t.stars)||5, type: t.type || 'text', img: t.img || null, sort_order: i
+    }));
+    if (rows.length) await sbFetch('hd_testimonials', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify(rows) });
+    SB_CACHE.testimonials = list;
+  } catch(e) { showToast('Erreur de synchronisation Supabase (témoignages)'); }
+}
+async function syncFaq(list) {
+  try {
+    await sbFetch('hd_faq?id=not.is.null', { method: 'DELETE' });
+    const rows = list.map((f, i) => ({ question: f.q || '', answer: f.a || '', sort_order: i }));
+    if (rows.length) await sbFetch('hd_faq', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify(rows) });
+    SB_CACHE.faq = list;
+  } catch(e) { showToast('Erreur de synchronisation Supabase (FAQ)'); }
+}
+async function syncGallery(list) {
+  try {
+    await sbFetch('hd_gallery?id=not.is.null', { method: 'DELETE' });
+    const rows = list.map((p, i) => ({ img_url: p.url || '', caption: p.caption || '', sort_order: i }));
+    if (rows.length) await sbFetch('hd_gallery', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify(rows) });
+    SB_CACHE.gallery = list;
+  } catch(e) { showToast('Erreur de synchronisation Supabase (galerie)'); }
+}
+async function syncSettings(payload) {
+  try {
+    await sbFetch('hd_settings?id=eq.1', {
+      method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify(payload)
+    });
+    SB_CACHE.settings = Object.assign({}, SB_CACHE.settings || {}, payload);
+  } catch(e) { showToast('Erreur de synchronisation Supabase (paramètres)'); }
+}
+
+async function loadAdminDataFromSupabase() {
+  try {
+    const rows = await sbGetJson('hd_settings?id=eq.1&select=*&limit=1');
+    if (rows && rows[0]) SB_CACHE.settings = rows[0];
+  } catch(e) {}
+  try {
+    const rows = await sbGetJson('hd_products?select=*&order=sort_order.asc');
+    if (Array.isArray(rows) && rows.length) {
+      SB_CACHE.products = rows.map(r => ({
+        id: r.id, name: r.name, img: r.img, price: r.price,
+        desc: r.description, badge: r.badge || '', active: r.active !== false,
+        benefits: safeParseArray(r.benefits)
+      }));
+    }
+  } catch(e) {}
+  try {
+    const rows = await sbGetJson('hd_testimonials?select=*&order=sort_order.asc');
+    if (Array.isArray(rows) && rows.length) SB_CACHE.testimonials = rows;
+  } catch(e) {}
+  try {
+    const rows = await sbGetJson('hd_faq?select=*&order=sort_order.asc');
+    if (Array.isArray(rows) && rows.length) SB_CACHE.faq = rows.map(r => ({ q: r.question, a: r.answer }));
+  } catch(e) {}
+  try {
+    const rows = await sbGetJson('hd_gallery?select=*&order=sort_order.asc');
+    if (Array.isArray(rows)) SB_CACHE.gallery = rows.map(r => ({ url: r.img_url, caption: r.caption }));
+  } catch(e) {}
+}
 
 function touchLastModified() { localStorage.setItem('hd_last_modified', String(Date.now())); }
 
@@ -626,7 +742,8 @@ function logout() {
 function showAdminApp() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('adminApp').style.display = 'flex';
-  renderAll();
+  renderAll(); // rendu immediat avec HD_DEFAULTS (fonctionnel hors-ligne)
+  loadAdminDataFromSupabase().then(renderAll); // puis rafraichit avec les donnees Supabase
 }
 
 function initAuth() {
@@ -807,38 +924,38 @@ function toggleProductEdit(i) {
   document.querySelectorAll('.item-edit.open').forEach(p => p.classList.remove('open'));
   if (!isOpen) panel.classList.add('open');
 }
-function toggleProductActive(i, checked) {
+async function toggleProductActive(i, checked) {
   const products = getProducts();
   products[i].active = checked;
-  hdSet('hd_products', products);
+  await syncProducts(products);
   touchLastModified();
   renderProductsList();
   showToast(checked ? 'Produit activé' : 'Produit désactivé');
 }
-function moveProduct(i, dir) {
+async function moveProduct(i, dir) {
   const products = getProducts();
   const j = i + dir;
   if (j < 0 || j >= products.length) return;
   [products[i], products[j]] = [products[j], products[i]];
-  hdSet('hd_products', products);
+  await syncProducts(products);
   touchLastModified();
   renderProductsList();
 }
-function saveProduct(i) {
+async function saveProduct(i) {
   const products = getProducts();
   const draft = productDraft(i);
   if (!draft.name || !draft.img) { showToast('Nom et image sont requis.'); return; }
   products[i] = { ...products[i], ...draft };
-  hdSet('hd_products', products);
+  await syncProducts(products);
   touchLastModified();
   renderProductsList();
   showToast('Produit enregistré ✓');
 }
-function deleteProduct(i) {
+async function deleteProduct(i) {
   if (!confirm('Supprimer définitivement ce produit ?')) return;
   const products = getProducts();
   products.splice(i, 1);
-  hdSet('hd_products', products);
+  await syncProducts(products);
   touchLastModified();
   renderProductsList();
   showToast('Produit supprimé');
@@ -851,7 +968,7 @@ function generateProductId(name) {
   while (existing.has(id)) { id = base + '-' + n; n++; }
   return id;
 }
-function addProduct() {
+async function addProduct() {
   const products = getProducts();
   const newProduct = {
     id: generateProductId('nouveau-produit-' + (products.length + 1)),
@@ -866,7 +983,7 @@ function addProduct() {
     active: true
   };
   products.push(newProduct);
-  hdSet('hd_products', products);
+  await syncProducts(products);
   touchLastModified();
   renderProductsList();
   toggleProductEdit(products.length - 1);
@@ -876,9 +993,9 @@ function addProduct() {
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('addProductBtn').addEventListener('click', addProduct);
   const btn = document.getElementById('resetProductsBtn');
-  if (btn) btn.addEventListener('click', () => {
+  if (btn) btn.addEventListener('click', async () => {
     if (!confirm('Réinitialiser tous les produits aux valeurs par défaut ? Cette action est irréversible.')) return;
-    hdSet('hd_products', JSON.parse(JSON.stringify(HD_DEFAULTS.products)));
+    await syncProducts(JSON.parse(JSON.stringify(HD_DEFAULTS.products)));
     touchLastModified();
     renderProductsList();
     showToast('Produits réinitialisés');
@@ -932,14 +1049,13 @@ function renderPromoModule() {
   document.getElementById('promoActive').onchange = e => {
     document.getElementById('promoActiveLabel').textContent = e.target.checked ? 'Bannière active' : 'Bannière inactive';
   };
-  document.getElementById('savePromoBtn').onclick = () => {
-    const newPromo = {
-      active: document.getElementById('promoActive').checked,
-      text: document.getElementById('promoText').value.trim(),
-      color: document.getElementById('promoColorCustom').value,
-      expiresAt: document.getElementById('promoExpiry').value || null
-    };
-    hdSet('hd_promo', newPromo);
+  document.getElementById('savePromoBtn').onclick = async () => {
+    // Note : expiresAt reste local uniquement (pas de colonne promo_expires_at dans le schema hd_settings)
+    await syncSettings({
+      promo_active: document.getElementById('promoActive').checked,
+      promo_text: document.getElementById('promoText').value.trim(),
+      promo_color: document.getElementById('promoColorCustom').value
+    });
     touchLastModified();
     showToast('Bannière promo enregistrée ✓');
   };
@@ -993,16 +1109,16 @@ function setTestiStars(i, n) {
   document.querySelectorAll('#tStars'+i+' .star-pick').forEach((b, idx) => b.classList.toggle('on', idx < n));
   document.getElementById('tStars'+i).dataset.value = n;
 }
-function moveTesti(i, dir) {
+async function moveTesti(i, dir) {
   const list = getTestimonials();
   const j = i + dir;
   if (j < 0 || j >= list.length) return;
   [list[i], list[j]] = [list[j], list[i]];
-  hdSet('hd_testimonials', list);
+  await syncTestimonials(list);
   touchLastModified();
   renderTestiList();
 }
-function saveTesti(i) {
+async function saveTesti(i) {
   const list = getTestimonials();
   const starsEl = document.getElementById('tStars'+i);
   const starsVal = starsEl.dataset.value ? Number(starsEl.dataset.value) : (list[i].stars || 5);
@@ -1013,24 +1129,24 @@ function saveTesti(i) {
     text: document.getElementById('tText'+i).value.trim(),
     stars: starsVal
   };
-  hdSet('hd_testimonials', list);
+  await syncTestimonials(list);
   touchLastModified();
   renderTestiList();
   showToast('Témoignage enregistré ✓');
 }
-function deleteTesti(i) {
+async function deleteTesti(i) {
   if (!confirm('Supprimer ce témoignage ?')) return;
   const list = getTestimonials();
   list.splice(i, 1);
-  hdSet('hd_testimonials', list);
+  await syncTestimonials(list);
   touchLastModified();
   renderTestiList();
 }
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('addTestiBtn').addEventListener('click', () => {
+  document.getElementById('addTestiBtn').addEventListener('click', async () => {
     const list = getTestimonials();
     list.push({ name: 'Nouveau client', role: '', product: '', text: '', stars: 5 });
-    hdSet('hd_testimonials', list);
+    await syncTestimonials(list);
     touchLastModified();
     renderTestiList();
     toggleTestiEdit(list.length - 1);
@@ -1072,36 +1188,36 @@ function toggleFaqEdit(i) {
   document.querySelectorAll('.item-edit.open').forEach(p => p.classList.remove('open'));
   if (!isOpen) panel.classList.add('open');
 }
-function moveFaq(i, dir) {
+async function moveFaq(i, dir) {
   const list = getFaqList();
   const j = i + dir;
   if (j < 0 || j >= list.length) return;
   [list[i], list[j]] = [list[j], list[i]];
-  hdSet('hd_faq', list);
+  await syncFaq(list);
   touchLastModified();
   renderFaqList_();
 }
-function saveFaq(i) {
+async function saveFaq(i) {
   const list = getFaqList();
   list[i] = { q: document.getElementById('fQ'+i).value.trim(), a: document.getElementById('fA'+i).value.trim() };
-  hdSet('hd_faq', list);
+  await syncFaq(list);
   touchLastModified();
   renderFaqList_();
   showToast('Question enregistrée ✓');
 }
-function deleteFaq(i) {
+async function deleteFaq(i) {
   if (!confirm('Supprimer cette question ?')) return;
   const list = getFaqList();
   list.splice(i, 1);
-  hdSet('hd_faq', list);
+  await syncFaq(list);
   touchLastModified();
   renderFaqList_();
 }
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('addFaqBtn').addEventListener('click', () => {
+  document.getElementById('addFaqBtn').addEventListener('click', async () => {
     const list = getFaqList();
     list.push({ q: 'Nouvelle question', a: '' });
-    hdSet('hd_faq', list);
+    await syncFaq(list);
     touchLastModified();
     renderFaqList_();
     toggleFaqEdit(list.length - 1);
@@ -1111,8 +1227,6 @@ document.addEventListener('DOMContentLoaded', () => {
 /* =====================================================
    MODULE — GALERIE COMMUNAUTE
 ===================================================== */
-function getGallery() { const g = hdGet('hd_gallery', null); return Array.isArray(g) ? g : []; }
-
 function renderGalleryList() {
   const list = getGallery();
   const el = document.getElementById('galleryList');
@@ -1147,34 +1261,34 @@ function toggleGalleryEdit(i) {
   document.querySelectorAll('.item-edit.open').forEach(p => p.classList.remove('open'));
   if (!isOpen) panel.classList.add('open');
 }
-function moveGalleryPhoto(i, dir) {
+async function moveGalleryPhoto(i, dir) {
   const list = getGallery();
   const j = i + dir;
   if (j < 0 || j >= list.length) return;
   [list[i], list[j]] = [list[j], list[i]];
-  hdSet('hd_gallery', list);
+  await syncGallery(list);
   touchLastModified();
   renderGalleryList();
 }
-function saveGalleryPhoto(i) {
+async function saveGalleryPhoto(i) {
   const list = getGallery();
   const url = document.getElementById('galUrl'+i).value.trim();
   if (!url) { showToast("L'URL ou le nom de fichier est requis."); return; }
   list[i] = { url, caption: document.getElementById('galCaption'+i).value.trim() };
-  hdSet('hd_gallery', list);
+  await syncGallery(list);
   touchLastModified();
   renderGalleryList();
   showToast('Photo enregistrée ✓');
 }
-function deleteGalleryPhoto(i) {
+async function deleteGalleryPhoto(i) {
   if (!confirm('Supprimer cette photo ?')) return;
   const list = getGallery();
   list.splice(i, 1);
-  hdSet('hd_gallery', list);
+  await syncGallery(list);
   touchLastModified();
   renderGalleryList();
 }
-function readAndCompressImage(file, maxDim, quality) {
+function compressImageToBlob(file, maxDim, quality) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -1188,7 +1302,7 @@ function readAndCompressImage(file, maxDim, quality) {
         const canvas = document.createElement('canvas');
         canvas.width = w; canvas.height = h;
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        resolve(canvas.toDataURL('image/jpeg', quality));
+        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('toBlob-failed')), 'image/jpeg', quality);
       };
       img.onerror = () => reject(new Error('image-load-failed'));
       img.src = e.target.result;
@@ -1196,6 +1310,18 @@ function readAndCompressImage(file, maxDim, quality) {
     reader.onerror = () => reject(new Error('file-read-failed'));
     reader.readAsDataURL(file);
   });
+}
+// Upload vers le bucket public hd-media -> renvoie l'URL publique immediatement utilisable
+async function uploadToSupabaseStorage(blob, filename) {
+  const cleanName = (filename || 'photo.jpg').replace(/[^a-zA-Z0-9._-]/g, '_');
+  const path = Date.now() + '_' + cleanName;
+  const res = await fetch(SB_URL + '/storage/v1/object/hd-media/' + path, {
+    method: 'POST',
+    headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': blob.type || 'image/jpeg' },
+    body: blob
+  });
+  if (!res.ok) throw new Error('upload failed: ' + res.status);
+  return SB_URL + '/storage/v1/object/public/hd-media/' + path;
 }
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('addGalleryBtn').addEventListener('click', () => {
@@ -1209,25 +1335,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!file.type.startsWith('image/')) { showToast('Veuillez choisir un fichier image.'); return; }
     const list = getGallery();
     if (list.length >= 12) { showToast('Maximum 12 photos.'); return; }
-    showToast('Traitement de la photo…');
+    showToast('Envoi de la photo…');
     try {
-      const dataUrl = await readAndCompressImage(file, 1200, 0.82);
+      const blob = await compressImageToBlob(file, 1200, 0.82);
+      const publicUrl = await uploadToSupabaseStorage(blob, file.name);
       const freshList = getGallery();
-      freshList.push({ url: dataUrl, caption: '' });
-      hdSet('hd_gallery', freshList);
+      freshList.push({ url: publicUrl, caption: '' });
+      await syncGallery(freshList);
       touchLastModified();
       renderGalleryList();
       toggleGalleryEdit(freshList.length - 1);
-      showToast('Photo ajoutée ✓');
+      showToast('Photo ajoutée ✓ — visible immédiatement sur le site');
     } catch (err) {
-      showToast("Erreur lors du traitement de l'image.");
+      showToast("Erreur lors de l'envoi de la photo.");
     }
   });
-  document.getElementById('addGalleryUrlBtn').addEventListener('click', () => {
+  document.getElementById('addGalleryUrlBtn').addEventListener('click', async () => {
     const list = getGallery();
     if (list.length >= 12) { showToast('Maximum 12 photos.'); return; }
     list.push({ url: '', caption: '' });
-    hdSet('hd_gallery', list);
+    await syncGallery(list);
     touchLastModified();
     renderGalleryList();
     toggleGalleryEdit(list.length - 1);
@@ -1247,17 +1374,17 @@ function renderSettingsModule() {
   document.getElementById('setFacebook').value = s.facebook;
   document.getElementById('setMapsLink').value = s.mapsLink;
 
-  document.getElementById('saveSettingsBtn').onclick = () => {
+  document.getElementById('saveSettingsBtn').onclick = async () => {
     const whatsapp = document.getElementById('setWhatsapp').value.replace(/\D/g,'').trim();
     if (!whatsapp) { showToast('Le numéro WhatsApp est requis.'); return; }
-    hdSet('hd_settings', {
+    // Note : mapsLink reste local uniquement (pas de colonne dans le schema hd_settings)
+    await syncSettings({
       whatsapp,
       email: document.getElementById('setEmail').value.trim(),
       address: document.getElementById('setAddress').value.trim(),
       hours: document.getElementById('setHours').value.trim(),
       instagram: document.getElementById('setInstagram').value.trim(),
-      facebook: document.getElementById('setFacebook').value.trim(),
-      mapsLink: document.getElementById('setMapsLink').value.trim()
+      facebook: document.getElementById('setFacebook').value.trim()
     });
     touchLastModified();
     showToast('Paramètres enregistrés ✓');

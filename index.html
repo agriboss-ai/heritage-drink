@@ -344,8 +344,6 @@
     .testi-wa-card{position:relative;aspect-ratio:9/16;border-radius:16px;overflow:hidden;background:#F0EBE0;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center}
     .testi-wa-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s}
     .testi-wa-card img.loaded{opacity:1}
-    .testi-wa-card img.loaded + .testi-wa-fallback{display:none}
-    .testi-wa-fallback{font-size:13px;font-weight:600;color:var(--muted)}
     @media(max-width:900px){.testi-wa-grid{grid-template-columns:1fr}}
 
     /* ── FAQ ── */
@@ -952,16 +950,13 @@
   <div class="testi-grid" id="testiGrid"></div>
   <div class="testi-wa-grid">
     <div class="testi-wa-card reveal-scale">
-      <img src="testi-wa-1.jpg" alt="Témoignage WhatsApp" onload="this.classList.add('loaded')" onerror="this.style.display='none'"/>
-      <div class="testi-wa-fallback">📱 Screenshot WhatsApp à ajouter</div>
+      <img src="testi-wa-1.jpg" alt="Témoignage WhatsApp" onload="this.classList.add('loaded')" onerror="this.closest('.testi-wa-card').style.display='none'"/>
     </div>
     <div class="testi-wa-card reveal-scale reveal-delay-1">
-      <img src="testi-wa-2.jpg" alt="Témoignage WhatsApp" onload="this.classList.add('loaded')" onerror="this.style.display='none'"/>
-      <div class="testi-wa-fallback">📱 Screenshot WhatsApp à ajouter</div>
+      <img src="testi-wa-2.jpg" alt="Témoignage WhatsApp" onload="this.classList.add('loaded')" onerror="this.closest('.testi-wa-card').style.display='none'"/>
     </div>
     <div class="testi-wa-card reveal-scale reveal-delay-2">
-      <img src="testi-wa-3.jpg" alt="Témoignage WhatsApp" onload="this.classList.add('loaded')" onerror="this.style.display='none'"/>
-      <div class="testi-wa-fallback">📱 Screenshot WhatsApp à ajouter</div>
+      <img src="testi-wa-3.jpg" alt="Témoignage WhatsApp" onload="this.classList.add('loaded')" onerror="this.closest('.testi-wa-card').style.display='none'"/>
     </div>
   </div>
 </section>

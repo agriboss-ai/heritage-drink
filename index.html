@@ -168,8 +168,11 @@
     .community-slot small{font-size:11px}
     .community-slot:nth-child(odd){background:#E8E4DC}
     .community-slot.has-photo{padding:0;background:none}
-    .community-slot.has-photo img{width:100%;height:100%;object-fit:cover}
+    .community-slot.has-photo img{width:100%;height:100%;object-fit:cover;cursor:pointer}
     .community-cta{text-align:center}
+    .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:24px;cursor:zoom-out}
+    .lightbox.active{display:flex}
+    .lightbox img{max-width:90vw;max-height:90vh;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.5);cursor:default}
     .btn-outline-dark{display:inline-flex;align-items:center;gap:10px;border:1.5px solid var(--border);color:var(--text);padding:14px 28px;border-radius:8px;font-weight:600;font-size:14px;transition:border-color .2s,background .2s}
     .btn-outline-dark:hover{border-color:var(--green);background:var(--cream)}
     @media(max-width:800px){
@@ -581,6 +584,10 @@
     <a href="https://www.instagram.com/heritagedrink" id="socialInstagramCta" target="_blank" rel="noopener" class="btn-outline-dark">📸 Voir notre communauté sur Instagram</a>
   </div>
 </section>
+
+<div class="lightbox" id="lightbox">
+  <img id="lightboxImg" src="" alt=""/>
+</div>
 
 <!-- QUIZ -->
 <section class="quiz-section" id="quiz">
@@ -1317,7 +1324,7 @@ function renderProducts() {
 function renderTestimonials() {
   const grid = document.getElementById('testiGrid');
   if (!grid) return;
-  const list = getTestimonials().slice(0, 6);
+  const list = getTestimonials().filter(t => t.type !== 'image' || (t.img && String(t.img).trim())).slice(0, 6);
   grid.innerHTML = list.map((t, i) => {
     const delay = ['','reveal-delay-1','reveal-delay-2'][i % 3];
     const starCount = Math.max(1, Math.min(5, t.stars || 5));
@@ -1524,6 +1531,39 @@ setTimeout(() => {
 
 document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale').forEach(el => {
   if (!el.closest('#productsGrid,#testiGrid,#faqGrid')) revealObserver.observe(el);
+});
+
+/* ── LIGHTBOX GALERIE ── */
+function openLightbox(src, alt) {
+  const lb = document.getElementById('lightbox');
+  const img = document.getElementById('lightboxImg');
+  if (!lb || !img) return;
+  img.src = src;
+  img.alt = alt || '';
+  lb.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  const lb = document.getElementById('lightbox');
+  if (!lb) return;
+  lb.classList.remove('active');
+  document.body.style.overflow = '';
+}
+const communityGalleryEl = document.getElementById('communityGallery');
+if (communityGalleryEl) {
+  communityGalleryEl.addEventListener('click', (e) => {
+    const img = e.target.closest('.community-slot.has-photo img');
+    if (img) openLightbox(img.src, img.alt);
+  });
+}
+const lightboxEl = document.getElementById('lightbox');
+if (lightboxEl) {
+  lightboxEl.addEventListener('click', (e) => {
+    if (e.target.id === 'lightbox') closeLightbox();
+  });
+}
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeLightbox();
 });
 
 /* ── RIPPLE EFFECT (boutons) ── */

@@ -1311,6 +1311,7 @@ function renderProducts() {
       </div>
     </div>`;
   grid.innerHTML = cards + special;
+  observeRevealElements();
 }
 
 function renderTestimonials() {
@@ -1328,6 +1329,7 @@ function renderTestimonials() {
       <div class="testi-author"><div class="testi-av">${escapeHtml(initial)}</div><div><div class="testi-name">${escapeHtml(t.name)} <span class="testi-chip">${escapeHtml(t.product)}</span></div><div class="testi-role">${escapeHtml(t.role)}</div></div></div>
     </div>`;
   }).join('');
+  observeRevealElements();
 }
 
 function renderFaqList() {
@@ -1335,6 +1337,7 @@ function renderFaqList() {
   if (!grid) return;
   const list = getFaqList().slice(0, 10);
   grid.innerHTML = list.map(item => `<div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">${escapeHtml(item.q)}<div class="faq-icon">+</div></button><div class="faq-a">${escapeHtml(item.a)}</div></div>`).join('');
+  observeRevealElements();
 }
 
 function renderGallery() {
@@ -1391,6 +1394,15 @@ function applyDynamicSettings() {
   const igCta = document.getElementById('socialInstagramCta'); if (igCta) igCta.href = s.instagram;
   const fb = document.getElementById('socialFacebook'); if (fb) fb.href = s.facebook;
   const addr = document.getElementById('footerAddress'); if (addr) addr.innerHTML = `${escapeHtml(s.address)}<br/>${escapeHtml(s.hours)}`;
+}
+
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); } });
+}, { threshold: 0.1 });
+function observeRevealElements() {
+  document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale').forEach(el => {
+    if (!el.classList.contains('visible')) revealObserver.observe(el);
+  });
 }
 
 // Rendu immediat avec HD_DEFAULTS (site fonctionnel meme hors-ligne / avant reponse Supabase)
@@ -1510,10 +1522,9 @@ setTimeout(() => {
   });
 }, 800);
 
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); } });
-}, { threshold: 0.1 });
-document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale').forEach(el => revealObserver.observe(el));
+document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale').forEach(el => {
+  if (!el.closest('#productsGrid,#testiGrid,#faqGrid')) revealObserver.observe(el);
+});
 
 /* ── RIPPLE EFFECT (boutons) ── */
 if (!prefersReducedMotion) {
